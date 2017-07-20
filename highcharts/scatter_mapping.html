@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scatter plot by seriesMapping</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/data.js"></script>
+</head>
+<body>
+
+<div id="container" style="width: 80%; margin: 0 auto"></div>
+<script>
+$(function () {
+  $.get('data/rots-om-oi.csv', function(data){
+    Highcharts.chart('container', {
+       chart: {
+         type: 'scatter',
+         zoomType: 'xy'
+       },
+       data: {
+         csv: data,
+         seriesMapping: [{x: 1, y: 2, name: 0}]
+       },
+       title: {
+         text: 'seriesMapping test'
+       },
+       tooltip: {
+         formatter: function () {
+            return 'ID: ' + this.name + '<br/>' +
+            'log2FC: ' + this.x + '<br>' +
+            'FDR: ' + this.y;
+         }
+       }
+    });
+  });
+});
+
+</script>
+
+</body>
+</html>
