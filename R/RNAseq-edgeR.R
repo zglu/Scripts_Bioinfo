@@ -320,7 +320,10 @@ for (i in 1:length(G)){
 dr.rpkm["Smp_179600.1",colnames(d$counts)]
 
 ## rpkm distribution
-hist(dr.rpkm[,"bM1"], breaks = c(0, 2, 5, 10, 300000), plot = FALSE) # sample cpm histogram 
+hist(dr.rpkm[,"bM1"], breaks = c(0, 2, 5, 10, 300000), plot = FALSE) # sample cpm histogram
+
+## histogram plus density plot
+hist(dr.rpkm[,"bM1"], prob=TRUE); lines(density(dr.rpkm[,"bM1"]), col="red", lty=2)
 
 #### export glm and plot
 #summary(dt<-decideTestsDGE(lrt)) #Error because of multi-cmps

@@ -39,14 +39,15 @@ $(function () {
     });
 
     // The select action
-    function changeData() {
-        if($('select[id=selectData]').val() === "2013Data") {
-            chart2.series[0].setData([129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4, 29.9, 71.5, 106.4] );
-        } else {
+    $("#selectData").on('change', function(){
+        var selVal = $("#selectData").val();
+        if(selVal == "2014Data" || selVal == '') {
             chart2.series[0].setData([29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4] );
         }
-    }
-    changeData();
+        else if (selVal == "2013Data") {
+            chart2.series[0].setData([129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4, 29.9, 71.5, 106.4] );
+        }
+    });
 
     // The button action
     $('#2013').click(function() {
