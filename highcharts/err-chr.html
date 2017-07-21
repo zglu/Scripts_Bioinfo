@@ -13,15 +13,18 @@
 <div id="container" style="width: 80%; margin: 0 auto"></div>
 <script>
 $(function () {
-  $.get('data/rots-om-oi.csv', function(data){
+  $.get('data/errlist.csv', function(data){
     Highcharts.chart('container', {
        chart: {
          type: 'scatter',
-         zoomType: 'xy'
+         zoomType: 'x'
+       },
+       xAxis: {
+         type: "category"
        },
        data: {
          csv: data,
-         seriesMapping: [{x: 1, y: 2, name: 0}]
+         seriesMapping: [{x: 2, y: 1, name: 0}]
        },
        title: {
          text: 'XY Scatter seriesMapping'
@@ -29,8 +32,8 @@ $(function () {
        tooltip: {
          formatter: function () {
             return 'ID: ' + this.point.name + '<br/>' +
-            'log2FC: ' + this.x + '<br>' +
-            'FDR: ' + this.y;
+            'Chr: ' + this.x + '<br>' +
+            'Stop Codons: ' + this.y;
          }
        }
     });
