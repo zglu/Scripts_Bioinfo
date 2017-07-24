@@ -70,9 +70,11 @@ def pep_seq():
         seq_combined = Seq(seq_combined, generic_dna)
         if t.strand == '-':
             seq_combined = seq_combined.reverse_complement()
-        seq_transl = seq_combined.translate()
-        for i in range(0, len(seq_transl), 60):
-            print(seq_transl[i:i+60])
+        f1_transl = seq_combined.translate()
+#        f2_transl = seq_combined[1:].translate()
+#        f3_transl = seq_combined[2:].translate()
+        for i in range(0, len(f1_transl), 60): # select which translation frame to output
+            print(f1_transl[i:i+60])
 
 if seqType in ['gene', 'transcript']:
     parent_seq(seqType)

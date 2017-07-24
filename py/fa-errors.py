@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 """
-Find number of stop codons in the protein sequences.
+Find number of internal stop codons in the protein sequences.
 """
 
 import sys
@@ -17,26 +17,26 @@ fa_sequences = SeqIO.parse(myFasta, 'fasta')
 #shortseq_generator = (fa for fa in fa_sequences if len(fa.seq) < 50)
 #SeqIO.write(shortseq_generator, "short_sequences.fasta", "fasta")
 
-#with open("errlist.txt", 'w') as fout:
-#    for fa in fa_sequences:
-#        id, sequence = fa.id, str(fa.seq)
-#        errlist = re.findall('\*', sequence)
-#        if len(errlist) > 2:
-#            fout.write(id + ' ' + str(len(errlist)) + '\n')
-#fout.close()
+with open("errlist.txt", 'w') as fout:
+    for fa in fa_sequences:
+        id, sequence = fa.id, str(fa.seq)
+        errs = re.findall('\*', sequence[:-1])
+        if len(errs) > 1:
+            fout.write(id + ' ' + str(len(errs)) + '\n')
+fout.close()
 
 errList = []
 for fa in fa_sequences:
     id, sequence = fa.id, str(fa.seq)
-    errs = re.findall('\*', sequence)
+    errs = re.findall('\*', sequence[:-1]) # remove the last * in the sequence
     errList.append(len(errs))
-#    if len(errlist) > 20:
-#        print(id + ': ' + str(len(errs)) + ' Stop Codons in the sequence.')
+#    if len(errs) > 1:
+#        print(id + ' ' + str(len(errs)))
+
 #print(errList)
 print(len(errList))
 errArray = np.asarray(errList)
 #newArray = np.array(errArray).astype(np.int)
-
 ## https://docs.scipy.org/doc/numpy/reference/routines.statistics.html
 print('min: ')
 print(np.amin(errArray))
