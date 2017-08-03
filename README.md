@@ -1,3 +1,3 @@
 # CodingPractice
-Collections of R, Python, Perl scripts that I used for my work.
+R, Python, Perl and JS scripts that I used for my work.
 Comments are welcome.
