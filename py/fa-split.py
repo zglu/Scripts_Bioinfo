@@ -29,7 +29,7 @@ def batch_iterator(iterator, batch_size):
     entry = True  # Make sure we loop once
     while entry:
         batch = []
-        while len(batch) < batch_size:
+        while len(batch) < int(batch_size):
             try:
                 entry = next(iterator)
             except StopIteration:
