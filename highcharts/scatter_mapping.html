@@ -5,7 +5,8 @@
     <title>XY Scatter plot by seriesMapping</title>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+<!--    <script src="https://code.highcharts.com/modules/boost.js"></script> -->
+<!--    <script src="https://code.highcharts.com/modules/exporting.js"></script> -->
     <script src="https://code.highcharts.com/modules/data.js"></script>
 </head>
 <body>
@@ -13,24 +14,80 @@
 <div id="container" style="width: 80%; margin: 0 auto"></div>
 <script>
 $(function () {
-  $.get('data/rots-om-oi.csv', function(data){
+  $.get('data/volcano.csv', function(data){
     Highcharts.chart('container', {
        chart: {
          type: 'scatter',
          zoomType: 'xy'
        },
+       xAxis: {
+	title: {
+	    text: "log2FC"
+	},
+	plotLines: [{
+	    color: 'red',
+	    value: 1,
+	    width: 1,
+	    dashStyle: 'longdashdot'
+	}],
+	plotLines: [{
+	    color: 'red',
+	    value: -1,
+	    width: 1,
+	    dashStyle: 'dashdot',
+	    label:{text:'2-fold'},
+	    zIndex: 5
+	}, {
+	    color: 'red',
+	    value: 1,
+	    width: 1,
+	    dashStyle: 'dashdot',
+	    label:{text: '2-fold'},
+	    zIndex: 5
+	}]
+       },
+       yAxis:{
+	title: {
+	    text: "-log10FDR"
+	},
+	min: 2,
+	plotLines: [{
+	    color: 'red',
+	    value: 2,
+	    width: 1,
+	    dashStyle: 'dashdot',
+	    label:{text:'FDR: 0.01'},
+	    zIndex: 5
+	}]
+       },
        data: {
          csv: data,
          seriesMapping: [{x: 1, y: 2, name: 0}]
        },
+       plotOptions: {
+	 scatter: {
+	     marker: {
+		radius: 3,
+		symbol: 'circle',
+		fillColor: this.x > 2 ? "red" : "grey"
+	     },
+	     turboThreshold: 0
+	 }
+       },
        title: {
          text: 'XY Scatter seriesMapping'
+       },
+       legend: {
+	enabled: false
+       },
+       credits: {
+	enabled: false
        },
        tooltip: {
          formatter: function () {
             return 'ID: ' + this.point.name + '<br/>' +
             'log2FC: ' + this.x + '<br>' +
-            'FDR: ' + this.y;
+            '-log10FDR: ' + this.y;
          }
        }
     });

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add point to highcharts</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+</head>
+<body>
+<center><div id="container" style="width: 80%; height: 400px"></div></center>
+<button id="button">Add a point</button>
+
+<script>
+$(function () {
+    var chart = new Highcharts.Chart({
+        chart: {
+            renderTo: 'container'
+        },
+
+        xAxis: {
+        },
+
+        series: [{
+            data: [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+        }]
+    });
+
+
+    // the button action
+    $('#button').click(function() {
+      chart.series[0].addPoint({marker:{fillColor:'#659355'}, y: Math.random() * 100, color:'#659355'}, true, true);
+    });
+});
+</script>
+</body>
+</html>
