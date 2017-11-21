@@ -45,7 +45,7 @@ def parent_seq(type):
 
 ## function to get all cds/exon/intron sequences under the same transcript id
 def child_seq(type):
-    for t in db.features_of_type('transcript', order_by='start'): # or mRNA depending on the gff
+    for t in db.features_of_type('mRNA', order_by='start'): # or mRNA depending on the gff
         print('>' + t.id + '_' + type)
         # print(t.sequence(myFasta))
         seq_combined = ''
@@ -60,21 +60,34 @@ def child_seq(type):
 
 ## function to get all protein sequences under the same transcript id
 def pep_seq():
-    for t in db.features_of_type('transcript', order_by='start'): # or mRNA depending on the gff
-        # print(t.sequence(myFasta))
+    for t in db.features_of_type('mRNA', order_by='start'): # or mRNA depending on the gff
+        #print(t.sequence(myFasta))
         print('>' + t.id)
         seq_combined = ''
+        j = 0
         for i in db.children(t, featuretype='CDS', order_by='start'): # or exon/intron
+            j += 1
+            if j == 1:
+                pphase = i[7] # assign phase to the 7th column of first CDS
             seq = i.sequence(myFasta, use_strand=True)  # use_strand doesn't work; have to revcomp
             seq_combined += seq
         seq_combined = Seq(seq_combined, generic_dna)
         if t.strand == '-':
+            pphase = i[7] # assign phase to the 7th column of last CDS line
             seq_combined = seq_combined.reverse_complement()
-        f1_transl = seq_combined.translate()
-#        f2_transl = seq_combined[1:].translate()
-#        f3_transl = seq_combined[2:].translate()
-        for i in range(0, len(f1_transl), 60): # select which translation frame to output
-            print(f1_transl[i:i+60])
+        #print(seq_combined)
+        if pphase == "0":
+            seq_transl = seq_combined.translate()
+            for i in range(0, len(seq_transl), 60):
+                print(seq_transl[i:i+60])
+        elif pphase == "1":
+            seq_transl = seq_combined[1:].translate()
+            for i in range(0, len(seq_transl), 60):
+                print(seq_transl[i:i+60])
+        elif pphase == "2":
+            seq_transl = seq_combined[2:].translate()
+            for i in range(0, len(seq_transl), 60):
+                print(seq_transl[i:i+60])
 
 if seqType in ['gene', 'transcript']:
     parent_seq(seqType)
