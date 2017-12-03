@@ -89,11 +89,11 @@ def pep_seq():
             for i in range(0, len(seq_transl), 60):
                 print(seq_transl[i:i+60])
 
-if seqType in ['gene', 'transcript']:
+if seqType in ['gene', 'mRNA']:
     parent_seq(seqType)
 elif seqType in ['CDS', 'exon', 'intron']:
     child_seq(seqType)
 elif seqType == 'pep':
     pep_seq()
 else:
-    sys.exit("Supported feature types: gene/transcript/CDS/pep/exon/intron.")
+    sys.exit("Supported feature types: gene/mRNA/CDS/pep/exon/intron.")
