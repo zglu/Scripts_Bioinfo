@@ -6,7 +6,7 @@ must be in gene -> mRNA -> cds/exon order
 first remove comment and empty lines: grep -v '#' | grep -v -e '^$'
 '''
 
-# last update: 7/11/2017
+# last update: 21/12/2017
 
 import re
 import sys
@@ -35,7 +35,8 @@ with open(GFF) as fin:
             line[8] = re.sub("Name=(.+)", "", line[8])
         elif "CDS" in line:
             line[8] = line[8].replace(mrnaid, trid)
-            line[8] = re.sub("ID=(.+);", "ID=" + trid + ".cds", line[8])
+            line[8] = re.sub("Parent=(.+?);", "", line[8])
+            line[8] = re.sub("ID=(.+);", "ID=" + trid + ".cds;Parent=" + trid, line[8])
             line[8] = re.sub("Name=(.+)", "", line[8])
         line[1] = "Apollo"
         print("\t".join(line))

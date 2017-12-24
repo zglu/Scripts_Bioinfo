@@ -27,7 +27,7 @@ with open(GFF) as fin:
             if i == 1:
                 pStart = line[3]
                 pStart_rv = line[4]
-    line[8] = re.sub(";ID=(.+?)$", "", line[8])
+    line[8] = re.sub("ID=(.+?);", "", line[8])
 # here lastCDS is the last line containing CDS
 # if mRNA start/end = start_codon/stop_codon then may end up with -1
     if line[6] == "+":
