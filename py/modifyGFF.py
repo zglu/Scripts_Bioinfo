@@ -18,12 +18,12 @@ with open(GFF) as fin:
     for line in fin:
         line = line.rstrip()
         line = line.split()
-        if "gene" in line:
+        if "gene" in line or "pseudogene" in line:
             i = 0
             name_pat = re.compile("Name=(Smp_......);")
             geneid = name_pat.search(line[8]).group(1)
             line[8] = "ID=" + geneid
-        elif "mRNA" in line:
+        elif "mRNA" in line or "transcript" in line:
             mrnaid_pat = re.compile("ID=(.+?);")
             mrnaid = mrnaid_pat.search(line[8]).group(1)
             i += 1

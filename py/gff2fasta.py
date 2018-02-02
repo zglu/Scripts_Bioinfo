@@ -50,7 +50,7 @@ def child_seq(type):
         # print(t.sequence(myFasta))
         seq_combined = ''
         for i in db.children(t, featuretype=type, order_by='start'): # or exon/intron
-            seq = i.sequence(myFasta, use_strand=True)  # use_strand doesn't work; have to revcomp
+            seq = i.sequence(myFasta, use_strand=False)  # use_strand doesn't work in 0.8; have to revcomp
             seq_combined += seq
         seq_combined = Seq(seq_combined, generic_dna)
         if t.strand == '-':
@@ -69,7 +69,7 @@ def pep_seq():
             j += 1
             if j == 1:
                 pphase = i[7] # assign phase to the 7th column of first CDS
-            seq = i.sequence(myFasta, use_strand=True)  # use_strand doesn't work; have to revcomp
+            seq = i.sequence(myFasta, use_strand=False)  # use_strand doesn't work; have to revcomp
             seq_combined += seq
         seq_combined = Seq(seq_combined, generic_dna)
         if t.strand == '-':

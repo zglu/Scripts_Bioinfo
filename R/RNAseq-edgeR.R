@@ -14,6 +14,7 @@ plot(rd$sM1, rd$sF1); abline(lm(rd$sM1 ~ rd$sF1), col="blue") # pch=20
 
 rd.grp<- as.factor(substr(colnames(rd[,1:24]), 1,2))
 rdlist<-DGEList(counts=rd[,1:24], group=rd.grp); 
+rdlist<-calcNormFactors(rdlist)
 
 ##### BASIC EXPLORATION ####
 # check MDS of all samples
