@@ -1,14 +1,14 @@
 #! /usr/bin/env python
 
 """
-Find number of internal stop codons in the protein sequences.
+QC for a peptide fasta file. Will report the Start, End and number of internal stop codons for each sequence.
 """
 
 import sys
 import re
 from Bio import SeqIO
-import numpy as np
-import matplotlib.pyplot as plt
+#import numpy as np
+#import matplotlib.pyplot as plt
 
 myFasta = sys.argv[1]
 
