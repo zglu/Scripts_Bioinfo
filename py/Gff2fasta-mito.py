@@ -3,6 +3,7 @@
 """
 Get dna sequences based on a gff file for features like gene, transcript, cds, exon, and get pep for coding sequences.
 SHOULD CHECK THE FEATURE NAME IN YOUR GFF: mRNA or transcript, and change accordingly.
+THIS IS A SLIGHT CHANGED SCRIPT FOR PROTEIN SEQUENCES OF MITOCHONDRIAL GENES
 Usage: python gff2fasta.py <gff3 file> <genome sequence> <type> > output
 last update: 18/11/2017
 """
@@ -77,7 +78,7 @@ def pep_seq():
             seq_combined = seq_combined.reverse_complement()
         #print(seq_combined)
         if pphase == "0" or pphase == ".":
-            seq_transl = seq_combined.translate(table=5)
+            seq_transl = seq_combined.translate(table=5) ## select translation table for mitochodrial genes
             for i in range(0, len(seq_transl), 60):
                 print(seq_transl[i:i+60])
         elif pphase == "1":
