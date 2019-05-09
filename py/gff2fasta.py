@@ -62,7 +62,7 @@ def child_seq(type):
 def pep_seq():
     for t in db.features_of_type('mRNA', order_by='start'): # or mRNA depending on the gff
         #print(t.sequence(myFasta))
-        print('>' + t.id)
+        print('>' + t.id) # + '_' + str(t.start)) # add transcription start
         seq_combined = ''
         j = 0
         for i in db.children(t, featuretype='CDS', order_by='start'): # or exon/intron

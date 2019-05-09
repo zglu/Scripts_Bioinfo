@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Volcano plot showing DEGs</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/data.js"></script>
+</head>
+<body>
+
+<div id="volcano" style="width: 45%; margin: 0 auto"></div>
+<script>
+var mtitle = 'Volcano Plot';
+var FILE = 'data/btbo.csv';
+$(function () {
+  $.get(FILE, function(data){
+    Highcharts.chart('volcano', {
+     chart: {
+         type: 'scatter',
+         zoomType: 'xy',
+	     style: {
+	        fontFamily: 'Arial'
+	    }
+       },
+     xAxis: {
+	    title: {
+	        text: "log2FC"
+	},
+	plotLines: [{
+	    color: 'red',
+	    value: 1,
+	    width: 1,
+	    dashStyle: 'longdashdot'
+	}],
+	plotLines: [{
+	    color: 'red',
+	    value: -1,
+	    width: 1,
+	    dashStyle: 'dashdot',
+	    label:{text:'2-fold'},
+	    zIndex: 5
+	}, {
+	    color: 'red',
+	    value: 1,
+	    width: 1,
+	    dashStyle: 'dashdot',
+	    label:{text: '2-fold'},
+	    zIndex: 5
+	}]
+       },
+    yAxis:{
+	    title: {
+	    text: "-log10FDR"
+	},
+	plotLines: [{
+	    color: 'red',
+	    value: 2,
+	    width: 1,
+	    dashStyle: 'dashdot',
+	    label:{text:'FDR: 0.01'},
+	    zIndex: 5
+	}]
+       },
+       data: {
+         csv: data,
+         seriesMapping: [{x: 1, y: 2, name: 0}]
+       },
+       plotOptions: {
+	 scatter: {
+	     marker: {
+		radius: 3,
+		symbol: 'circle',
+		fillColor: this.x > 2 ? "red" : "grey"
+	     },
+	     cursor: 'pointer',
+	     point: {
+	        events: {
+	            click: function () {
+	                location.href = '/smansoni/' + this.options.name;
+	            }
+	        }
+	     },
+	     turboThreshold: 0
+	 }
+       },
+    title: {
+         text: mtitle
+    },
+    subtitle: {
+	    text: "Source: Lu et al (2016) Sci Rep"
+	},
+    legend: {
+	    enabled: false
+    },
+    credits: {
+	    enabled: false
+    },
+    tooltip: {
+         formatter: function () {
+            return 'ID: ' + this.point.name + '<br/>' +
+            'log2FC: ' + this.x + '<br>' +
+            '-log10FDR: ' + this.y;
+         }
+    }
+    });
+  });
+});
+</script>
+
+
+</body>
+</html>

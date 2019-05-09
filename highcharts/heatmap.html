@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Heatmap</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/data.js"></script>
+    <script src="https://code.highcharts.com/modules/heatmap.js"></script>
+</head>
+<body>
+<div id="heatmapBody" width="90%"></div>
+<script>
+$.get('data/heatmap2.csv', function(csv) {
+  generateHeatMap($('#heatmapBody'),csv);
+});
+
+function generateHeatMap(target,data) {
+  target.highcharts({
+    chart: {
+        type: 'heatmap',
+        //height: highChartsArguments.chartHeight
+        margin: [60, 10, 80, 50]
+    },
+    boost: {
+        useGPUTranslations: true
+    },
+    title: {
+        text: 'Highcharts extended heat map',
+        style: {
+            color: 'black',
+            fontSize: '12px',
+            fontFamily: 'Verdana'
+        }
+    },
+    xAxis: {
+        type: 'text',
+        min: 0,
+        max: 427,
+        labels: {
+            align: 'left',
+            x: 5,
+            y: 14,
+            format: '{value}' // long month
+        },
+        showLastLabel: false,
+        tickLength: 16
+    },
+    yAxis: {
+        title: {
+            text: null
+        },
+        labels: {
+            format: '{value}'
+        },
+        minPadding: 0,
+        maxPadding: 0,
+        startOnTick: false,
+        endOnTick: false,
+        tickPositions: [0, 16, 32, 48, 64, 80, 96, 112, 133],
+        tickWidth: 1,
+        min: 0,
+        max: 133,
+        reversed: true
+    },
+    colorAxis: {
+        max: 1.5,
+        min: -1.5,
+        minColor: '#00FF00',
+        maxColor: '#FF0000',
+        stops: [
+            [0.0, '#00FF00'],
+            [0.5, '#003319'],
+            [0.9, '#FF0000'],
+            [1, '#FF0000']
+        ]
+    },
+    credits: {
+        enabled: false
+    },
+    data: {
+        csv: data
+    },
+    legend: {
+        enabled: true,
+        align: 'right',
+        layout: 'vertical',
+        margin: 0,
+        verticalAlign: 'top',
+        symbolHeight: 60
+    },
+    series: [{
+            name: 'heatmap',
+            boostThreshold: 100,
+            borderWidth: 0,
+            nullColor: '#EFEFEF',
+            tooltip: {
+                headerFormat: 'Test<br/>',
+                pointFormat: '{point.x} {point.y}: <b>{point.value}</b>'
+            },
+            turboThreshold: Number.MAX_VALUE // #3404, remove after 4.0.5 release
+        }],
+    exporting: {
+        enabled: false
+    }
+  });
+}
+</script>
+</body>
+</html>
