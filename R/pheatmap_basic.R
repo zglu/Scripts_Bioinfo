@@ -7,6 +7,7 @@ args = commandArgs(trailingOnly=TRUE)
 
 exp<-read.delim(args[1], sep=" ", header=T)
 
+# if add group names in the second column
 #z<-exp[,-1:-2]
 z<-exp[,-1]
 rownames(z)<-exp[,1]
