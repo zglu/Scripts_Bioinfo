@@ -7,7 +7,8 @@ args = commandArgs(trailingOnly=TRUE)
 
 exp<-read.delim(args[1], sep=" ", header=T)
 
-z<-exp[,-1:-2]
+#z<-exp[,-1:-2]
+z<-exp[,-1]
 rownames(z)<-exp[,1]
 zz<-as.matrix(z)
 
