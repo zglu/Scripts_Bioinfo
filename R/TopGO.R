@@ -8,9 +8,9 @@ ids <- read.table(args[1], header=F)
 #ids <- read.table("pzq.genes", header=F)
 myGenes <- as.character(ids$V1)
 
-ndSize <- 5
-goCat <- 'CC'
-nTerms <-203
+ndSize <- 10 
+goCat <- 'BP'
+nTerms <-20
 
 # GO annotation file
 refGO <- read.table(file="femaleGORef-7.2.txt", sep=" ", stringsAsFactor=F) 
