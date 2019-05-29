@@ -8,7 +8,7 @@ use warnings;
 
 my %hsh=();
 
-open (MYFILE, $ARGV[0]); # id pairs
+open (MYFILE, $ARGV[0]); # Smp_121100	;previous_systematic_id=...
 open (MYFILE1, $ARGV[1]); # gff3 file
 
 while (<MYFILE>) {
@@ -22,10 +22,10 @@ $flag=0;
 my $line=$_;
 foreach my $key (keys %hsh)
 {
-   if($line=~/Parent=$key$/)
+   if($line=~/ID=$key$/) # ID=Smp_121100 OR Parent=Smp_121100 for mRNA
    {
     $flag=1;
-    $line=~s/$key$/$key;$hsh{$key}/g; # replace string at line end with paired-string
+    $line=~s/$key$/$key$hsh{$key}/g; # ID=Smp_121100 ---> ID=Smp_121100;previous_systematic_id=...
     print $line;
    }
 }

@@ -7,7 +7,7 @@ use warnings;
 
 my %hsh=();
 
-open (MYFILE, $ARGV[0]);
+open (MYFILE, $ARGV[0]); # Smp_121100.1	;product=Hypothetical protein
 open (MYFILE1, $ARGV[1]);
 
 while (<MYFILE>) {
@@ -24,7 +24,7 @@ foreach my $key (keys %hsh)
    if($line=~/ID=$key;/) # eg. ID=Smp_123450.1;Parent=Smp_123450
    {
     $flag=1;
-    $line=~s/$/;$hsh{$key}/g; # replace line end with notes 
+    $line=~s/$/$hsh{$key}/g; # ID=Smp_123450.1;Parent=Smp_123450 ---> ID=Smp_123450.1;Parent=Smp_123450;product=Hypothetical protein...
     print $line;
    }
 }
