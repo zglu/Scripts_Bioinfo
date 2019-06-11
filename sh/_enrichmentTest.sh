@@ -29,3 +29,5 @@ rm -f tmp1.txt
 # run hypergeometric test
 Rscript _FisherTest.R $1
 
+rm -f $1-mapped $2-mapped $1-fisherTable.txt
+
