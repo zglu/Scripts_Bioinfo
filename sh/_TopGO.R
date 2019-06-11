@@ -1,4 +1,5 @@
 ## usage: Rscript topGO.R [gene ids]
+## for i in *.genes; do Rscript topGO.R $i; done
 
 library("topGO")
 
@@ -8,12 +9,12 @@ ids <- read.table(args[1], header=F)
 #ids <- read.table("pzq.genes", header=F)
 myGenes <- as.character(ids$V1)
 
-ndSize <- 10 
-goCat <- 'BP'
-nTerms <-50 # number of terms to write out (or only show significant ones)
+ndSize <- 5 
+goCat <- 'MF'
+nTerms <-50
 
 # GO annotation file
-refGO <- read.table(file="femaleGORef-7.2.txt", sep=" ", stringsAsFactor=F) 
+refGO <- read.table(file="~/Documents/Inqueries/Carmen_sc_functions/topGO/goRef_allexpr.txt", sep=" ", stringsAsFactor=F) 
 # 
 # Smp_000030 GO:0000502,GO:0005488,GO:0030234,GO:0042176
 # Smp_000040 GO:0003777,GO:0005515,GO:0005871
@@ -47,7 +48,7 @@ resultTopgo
 
 allRes <- GenTable(
   myGOdata,
-  classic = resultClassic,
+#  classic = resultClassic,
   topGO = resultTopgo, 
   #elim = resultElim, 
   orderBy = "topGO",
@@ -67,7 +68,6 @@ allRes$genes <- sapply(allRes$GO.ID, function(x)
 allRes$genes <-vapply(allRes$genes, paste, collapse = ",", character(1L))
 # only write significant terms
 allRes<-allRes[ which(allRes$topGO<0.05),]
-
 outfile <- paste("topgo_", args[1], "_", goCat, "_", ndSize, ".txt", sep="")
 write.table(allRes, outfile,sep="\t", quote=F, row.names = F) #
 
