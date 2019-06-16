@@ -15,7 +15,7 @@ import warnings
 from Bio import BiopythonWarning
 warnings.simplefilter('ignore', BiopythonWarning)
 
-if len(sys.argv) < 4:
+if len(sys.argv) < 5:
     sys.exit("Usage: python3 up-downstream_seq.py <gff> <fasta> <feature> <upRange> <downRange> > output")
 else:
     myGFF = sys.argv[1]
@@ -31,11 +31,11 @@ def upstream_seq(type):
         genomefa = Fasta(myFasta)
         print('>' + p.id + "_[-" + str(upRange) + "]-[+" + str(downRange) + "]")
         upstart = p.start - 1 - upRange
-        upend = p.start -1 + downRange
+        upend = p.start + downRange
         # get sequence based on coordinates (start is 0-based)
         p_upstream = genomefa[p.seqid][upstart:upend]
         if p.strand == '-':
-            upstart = p.end - downRange
+            upstart = p.end - 1 - downRange
             upend = p.end + upRange
             p_upstream = genomefa[p.seqid][upstart:upend]
             p_upstream = Seq(p_upstream).reverse_complement()
