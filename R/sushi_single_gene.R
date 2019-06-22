@@ -1,7 +1,7 @@
 #source("https://bioconductor.org/biocLite.R")
 #biocLite("Sushi")
 
-# usage: Rscript sushi_single_gene.R [gene id]
+# usage: Rscript sushi_single_gene.R [gene id] [shift region]
 # will need: the gene coord bed file, and features (cd/utr/exon) bed file
 
 library(Sushi)
@@ -17,8 +17,8 @@ gene$match<-match(gene, genebed$id, nomatch=0)
 y<-genebed[gene$match,]
 
 chr=as.character(y$chr)
-regstart<-ifelse(y$strand=="+", y$start-shift, y$start)
-regend<-ifelse(y$strand=="-", y$end+shift, y$end)
+regstart<-ifelse(y$strand=="+", y$start-shift, y$start-200)
+regend<-ifelse(y$strand=="-", y$end+shift, y$end+200)
 
 bed.sub<-combibed[which(combibed[,"chrom"] == chr & combibed[,"start"] >= regstart & combibed[,"end"] <= regend),]
 write.table(bed.sub, file="subbed", row.names = F, quote = F)

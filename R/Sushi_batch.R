@@ -22,8 +22,8 @@ par(mfrow=c(3,1))
 i<-1;
 for (i in 1:nrow(y)) {
 chr=as.character(y[i,"chr"])
-regstart<-ifelse(y[i, "strand"]=="+", y[i, "start"]-500, y[i, "start"])
-regend<-ifelse(y[i, "strand"]=="-", y[i, "end"]+500, y[i, "end"])
+regstart<-ifelse(y[i, "strand"]=="+", y[i, "start"]-500, y[i, "start"]-200)
+regend<-ifelse(y[i, "strand"]=="-", y[i, "end"]+500, y[i, "end"]+200)
 
 bed.sub<-combibed[which(combibed[,"chrom"] == chr & combibed[,"start"] >= regstart & combibed[,"end"] <= regend),]
 write.table(bed.sub, file="subbed", row.names = F, quote = F)

@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 """
-Get up- and downstream sequences of gene/mRNA features from one gff file.
+Get up- and downstream (relative to transcription start site) sequences of gene/mRNA features from one gff file.
 last update: 12/06/2019
 """
 
@@ -26,23 +26,23 @@ else:
 
 db = gffutils.create_db(myGFF, ':memory:', merge_strategy="create_unique", keep_order=True)
 
-def upstream_seq(type):
+def updownTSS_seq(type):
     for p in db.features_of_type(type):
         genomefa = Fasta(myFasta)
         print('>' + p.id + "_[-" + str(upRange) + "]-[+" + str(downRange) + "]")
-        upstart = p.start - 1 - upRange
-        upend = p.start + downRange
+        seqstart = p.start - 1 - upRange
+        seqend = p.start + downRange
         # get sequence based on coordinates (start is 0-based)
-        p_upstream = genomefa[p.seqid][upstart:upend]
+        p_updown = genomefa[p.seqid][seqstart:seqend]
         if p.strand == '-':
-            upstart = p.end - 1 - downRange
-            upend = p.end + upRange
-            p_upstream = genomefa[p.seqid][upstart:upend]
-            p_upstream = Seq(p_upstream).reverse_complement()
-        for i in range(0, len(p_upstream), 60): # print 60 bases per line
-            print(p_upstream[i:i+60])
+            seqstart = p.end - 1 - downRange
+            seqend = p.end + upRange
+            p_updown = genomefa[p.seqid][seqstart:seqend]
+            p_updown = Seq(p_updown).reverse_complement()
+        for i in range(0, len(p_updown), 60): # print 60 bases per line
+            print(p_updown[i:i+60])
 
 if myType in ['gene', 'mRNA']:
-    upstream_seq(myType)
+    updownTSS_seq(myType)
 else:
     sys.exit("Feature should be gene or mRNA")
