@@ -31,11 +31,13 @@ def updownTSS_seq(type):
         genomefa = Fasta(myFasta)
         print('>' + p.id + "_[-" + str(upRange) + "]-[+" + str(downRange) + "]")
         seqstart = p.start - 1 - upRange
+        seqstart = seqstart if seqstart > 0 else 1  # avoid start with minus coord
         seqend = p.start + downRange
         # get sequence based on coordinates (start is 0-based)
         p_updown = genomefa[p.seqid][seqstart:seqend]
         if p.strand == '-':
             seqstart = p.end - 1 - downRange
+            seqstart = seqstart if seqstart > 0 else 1 # avoid start with minus coord 
             seqend = p.end + upRange
             p_updown = genomefa[p.seqid][seqstart:seqend]
             p_updown = Seq(p_updown).reverse_complement()
