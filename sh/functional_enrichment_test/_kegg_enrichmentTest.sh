@@ -5,11 +5,11 @@
 ### Perform function enrichment (KEGG pathways) analysis via hypergeometric test
 ### Need to provide sorted files: test genes ($1), background genes ($2), gene-K annotation ($3), pathway names ($4)
 
-# gene annotation (kegg-7.2.txt)
+# gene-K annotation (kegg-7.2.txt)
 # Smp_000020 K15719
 # Smp_000040 K10407
 
-# term names (two columns only; keggRef.txt)
+# pathway names (two columns only; keggRef.txt)
 # map00010	Glycolysis_/_Gluconeogenesis
 # map00020	Citrate_cycle_(TCA_cycle)
 
