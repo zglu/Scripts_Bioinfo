@@ -1,5 +1,6 @@
-## usage: Rscript topGO.R [gene ids]
-## for i in *.genes; do Rscript topGO.R $i; done
+## usage: Rscript topGO.R [gene ids] [go annotation]
+## for i in *.genes; do Rscript topGO.R $i [annotation file]; done
+
 
 library("topGO")
 
@@ -14,7 +15,7 @@ goCat <- 'MF'
 nTerms <-50
 
 # GO annotation file
-refGO <- read.table(file="~/Documents/Inqueries/Carmen_sc_functions/topGO/goRef_allexpr.txt", sep=" ", stringsAsFactor=F) 
+refGO <- read.table(file=args[2], sep=" ", stringsAsFactor=F) 
 # 
 # Smp_000030 GO:0000502,GO:0005488,GO:0030234,GO:0042176
 # Smp_000040 GO:0003777,GO:0005515,GO:0005871

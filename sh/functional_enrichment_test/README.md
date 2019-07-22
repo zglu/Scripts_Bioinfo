@@ -28,6 +28,6 @@ Finally perform enrichment test in genes of interest
 
 #### For GO terms use:
 
-    Rscript _TopGO.R [list of test genes]
+    Rscript _TopGO.R [list of test genes] [gene-GO annotation file]
 
-Need to change the background GO annotation in the script "refGO".
+Can change the node size, top genes etc in the script.
