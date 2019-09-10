@@ -6,8 +6,8 @@
 cat $1 | grep Ontology_term | awk -F "\t" '{print $9}' | sed 's/ /_/g' |sed 's/;/ /g'| awk '{print $2 " " $NF}'| sed 's/Parent=//; s/Ontology_term=//'| sort | sed 's/,/ /g'| awk -v OFS='\t' '{for (i=2;i<=NF;i++) print $1,$i}' | sort -u | awk '$1!=p{if(p)print s; p=$1; s=$0; next}{sub(p,x); s=s $0} END{print s}' > all_GO.txt
 
 # InterPro
-grep =InterPro Sm_v7.2_all-validated.gff | awk -F "\t" '{print $9}' | sed 's/ /_/g' |sed 's/;/ /g'| awk '{print $2 " " $NF}'|grep InterPro |sed 's/Parent=//; s/polypeptide_domain=InterPro://' | sed 's/_Pfam/ /'|awk '{print $1 " " $2}'| sed 's/,/ /g'| awk -v OFS='\t' '{for (i=2;i<=NF;i++) print $1,$i}' > ip1.txt
-grep =InterPro Sm_v7.2_all-validated.gff | awk -F "\t" '{print $9}' | sed 's/ /_/g' |sed 's/;/ /g'| awk '{print $2 " " $(NF-1)}'|grep InterPro |sed 's/Parent=//; s/polypeptide_domain=InterPro://' | sed 's/_Pfam/ /'|awk '{print $1 " " $2}'| sed 's/,/ /g'| awk -v OFS='\t' '{for (i=2;i<=NF;i++) print $1,$i}' | cat - ip1.txt | sort -u | awk '$1!=p{if(p)print s; p=$1; s=$0; next}{sub(p,x); s=s $0} END{print s}' | tr '\t' ',' | sed 's/,/ /' > all_interpro.txt 
+grep =InterPro $1 | awk -F "\t" '{print $9}' | sed 's/ /_/g' |sed 's/;/ /g'| awk '{print $2 " " $NF}'|grep InterPro |sed 's/Parent=//; s/polypeptide_domain=InterPro://' | sed 's/_Pfam/ /'|awk '{print $1 " " $2}'| sed 's/,/ /g'| awk -v OFS='\t' '{for (i=2;i<=NF;i++) print $1,$i}' > ip1.txt
+grep =InterPro $1 | awk -F "\t" '{print $9}' | sed 's/ /_/g' |sed 's/;/ /g'| awk '{print $2 " " $(NF-1)}'|grep InterPro |sed 's/Parent=//; s/polypeptide_domain=InterPro://' | sed 's/_Pfam/ /'|awk '{print $1 " " $2}'| sed 's/,/ /g'| awk -v OFS='\t' '{for (i=2;i<=NF;i++) print $1,$i}' | cat - ip1.txt | sort -u | awk '$1!=p{if(p)print s; p=$1; s=$0; next}{sub(p,x); s=s $0} END{print s}' | tr '\t' ',' | sed 's/,/ /' > all_interpro.txt 
 rm -f ip1.txt
 
 # Pfam
