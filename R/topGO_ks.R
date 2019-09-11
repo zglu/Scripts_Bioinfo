@@ -75,7 +75,8 @@ allRes$genes <- sapply(allRes$GO.ID, function(x)
 allRes$genes <-vapply(allRes$genes, paste, collapse = ",", character(1L))
 
 # only write significant terms
-allRes<-allRes[ which(as.numeric(allRes$topGO)<0.05),]
+allRes<-subset(allRes, as.numeric(allRes[,"topGO"])<0.05 | grepl("e-", allRes[,"topGO"]))
+#allRes<-allRes[ which(as.numeric(allRes[,"topGO"])<0.05 | grepl("e-", allRes[,"topGO"])),]
 
 outfile <- paste("topgoKS_", args[1], "_", goCat, "_", ndSize, ".txt", sep="")
 write.table(allRes, outfile,sep="\t", quote=F, row.names = F) #
