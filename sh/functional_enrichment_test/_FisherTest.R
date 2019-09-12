@@ -19,5 +19,5 @@ expotable$FDR <- round(p.adjust(expotable$p_value, method = "BH"), digits=4) # B
 #expotable$FDR<-NULL # drop a column
 expotable<-expotable[order(expotable$FDR),]
 expotable<-expotable[, c(1:6,8:11, 7)]
-expotable<-expotable[ which(expotable$FDR < 0.05),]
+expotable<-subset(expotable, as.numeric(expotable[,"FDR"])<0.05 | grepl("e-", expotable[,"FDR"]))
 write.table(expotable, file=paste0("fisher_", args[1], "_Results.txt"), row.names = F, sep="\t", quote = F)
