@@ -1,4 +1,4 @@
-## usage: Rscript pheatmap_basic.R [ids] [expression data with header]
+## usage: Rscript pheatmap_argv.R [ids] [expression data with header]
 
 library(pheatmap)
 library(RColorBrewer)
