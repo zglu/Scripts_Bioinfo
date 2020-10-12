@@ -1,0 +1,33 @@
+Select enriched regions for different marks:
+
+activative
+- H3K4me3: -200 ...TSS... +50%gene (nearTSS)
+- H4K20me1: -200...TSS... +50%gene (nearTSS)
+- H3K9ac: gene body (Smv7.2.genes)
+- H3K23ac: gene body (Smv7.2.genes)
+- H3K36me3: 50%ofgene...TES...200 (towardsTES)
+
+Repressive
+- H3K9me3: 2000...TSS...200 (promoter_up2000-down200)
+- H3K27me3: -200...TSS... +50%gene (nearTSS)
+
+
+cat ~/Documents/SCHISTO/V7/annotations/Smv7.2_20181012/Sm_v7.2_Basic.gff | grep gene | cut -d \; -f1 | awk '{print $1, $4, $5, $9, ".", $7}'| sed 's/ID=//'| tr ' ' '\t' > Smv7.2.genes.bed
+
+## get promoter regions for each gene
+upstream 2000 and downstream 200 around tss (for H3K9me3)
+- ./aroundTSS_bed.sh 2000 200
+
+upstream 200 and downstream 50% of gene for H3K4me3 and H4K20me1
+- cat Smv7.2.genes.bed | awk '{if($6=="-") print $1, int($2+($3-$2)/2),$3+200, $4, $5, $6; else print $1, $2-200, int($2+($3-$2)/2), $4, $5, $6}'| awk '{if($2<0) print $1, "1", $3, $4, $5, $6; else print $0}'| tr ' ' '\t'> nearTSS.bed
+
+## region towards TES (H3K36me3: 50% of gene to TES)
+- cat Smv7.2.genes.bed | awk '{if($6=="-") print $1, $2-200, int($2+($3-$2)/2), $4, $5, $6; else print $1, int($2+($3-$2)/2), $3+200, $4, $5, $6}'| awk '{if($2<0) print $1, "1", $3, $4, $5, $6; else print $0}'| tr ' ' '\t' > towardsTES.bed
+
+## gene body: for H3K9ac and H3K23ac
+
+Smv7.2.genes.bed
+
+
+## extend genes to TSS-2000 and TES+200
+cat Smv7.2.genes.bed | awk '{if ($6=="+") print $1, $2-2000, $3+200, $4, $5, $6; else print $1, $2-200, $3+2000, $4, $5, $6}' | awk '{if ($2<0) print $1, 1, $3, $4, $5, $6; else print $0}'|tr ' ' '\t' > Smv7.2.genes_up2000-down200.bed
