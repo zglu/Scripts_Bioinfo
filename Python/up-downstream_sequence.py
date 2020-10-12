@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 """
 Get up- and downstream (relative to transcription start site) sequences of gene/mRNA features from one gff file.
