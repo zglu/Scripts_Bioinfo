@@ -30,7 +30,7 @@ def updownTSS_seq(type):
     for p in db.features_of_type(type):
         genomefa = Fasta(myFasta)
         chrlen = len(genomefa[p.chrom])
-        print('>' + p.id + "_[-" + str(upRange) + "]-[+" + str(downRange) + "]")
+        #print('>' + p.id + "_[-" + str(upRange) + "]-[+" + str(downRange) + "]")
         seqstart = p.start - 1 - upRange
         seqstart = seqstart if seqstart > 0 else 0  # avoid start with minus coord
         seqend = p.start + downRange
@@ -42,6 +42,7 @@ def updownTSS_seq(type):
             seqend = seqend if seqend < chrlen else chrlen # avoid end coord exceeds chrom end
             p_updown = genomefa[p.seqid][seqstart:seqend]
             p_updown = Seq(p_updown).reverse_complement()
+        print('>' + p.id + "_[" + str(seqstart) + "-" + str(seqend) + "]") # print out the coordinates
         for i in range(0, len(p_updown), 60): # print 60 bases per line
             print(p_updown[i:i+60])
 
