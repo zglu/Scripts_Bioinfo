@@ -38,8 +38,9 @@ def parent_seq(type):
         print('>' + p.id)
         p_seq = p.sequence(myFasta)
         p_seq = Seq(p_seq, generic_dna)
-        if p.strand == '-':
-            p_seq = p_seq.reverse_complement()
+## update 2021-11: the new package can already handle the strandness of parental features!!
+ #       if p.strand == '-':
+ #           p_seq = p_seq.reverse_complement()
         for i in range(0, len(p_seq), 60): # print 60 bases per line
             print(p_seq[i:i+60])
 
