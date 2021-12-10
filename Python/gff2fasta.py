@@ -10,7 +10,6 @@ last update: 18/11/2017
 import sys
 import gffutils
 from Bio.Seq import Seq
-from Bio.Alphabet import generic_dna
 
 ## ignore biopython warnings
 import warnings
@@ -37,7 +36,7 @@ def parent_seq(type):
     for p in db.features_of_type(type):
         print('>' + p.id)
         p_seq = p.sequence(myFasta)
-        p_seq = Seq(p_seq, generic_dna)
+        p_seq = Seq(p_seq)
 ## update 2021-11: the new package can already handle the strandness of parental features!!
  #       if p.strand == '-':
  #           p_seq = p_seq.reverse_complement()
@@ -53,7 +52,7 @@ def child_seq(type):
         for i in db.children(t, featuretype=type, order_by='start'): # or exon/intron
             seq = i.sequence(myFasta, use_strand=False)  # use_strand doesn't work in 0.8; have to revcomp
             seq_combined += seq
-        seq_combined = Seq(seq_combined, generic_dna)
+        seq_combined = Seq(seq_combined)
         if t.strand == '-':
             seq_combined = seq_combined.reverse_complement()
         for i in range(0, len(seq_combined), 60):
@@ -72,7 +71,7 @@ def pep_seq():
                 pphase = i[7] # assign phase to the 7th column of first CDS
             seq = i.sequence(myFasta, use_strand=False)  # use_strand doesn't work; have to revcomp
             seq_combined += seq
-        seq_combined = Seq(seq_combined, generic_dna)
+        seq_combined = Seq(seq_combined)
         if t.strand == '-':
             pphase = i[7] # assign phase to the 7th column of last CDS line
             seq_combined = seq_combined.reverse_complement()
