@@ -1,4 +1,5 @@
 *** gene model transfer by RATT ***
+
 #Convert from or to EMBL format: http://ratt.sourceforge.net/transform.html (I used EMBL2GFF and it worked fine)
 
 # Set config to eukaryotic
