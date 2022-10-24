@@ -1,0 +1,25 @@
+# in /00.mapping
+
+outDIR=EXAMPLE-OUT
+SN=EXAMPLE-SN
+FC=EXAMPLE-FC
+SB=EXAMPLE-SB # Sample Barcode
+maskDIR=/mgi_storage/sk/stomics/maskdir
+fqDIR=EXAMPLE-FQ
+
+in=${maskDIR}/${SN}.barcodeToPos.h5
+in1=${fqDIR}/${FC}_L01_${SB}_1.fq.gz
+in2=${fqDIR}/${FC}_L01_${SB}_2.fq.gz
+encodeRule=ACTG
+out=${FC}
+barcodeReadsCount=${outDIR}/00.mapping/${FC}.barcodeReadsCount.txt
+action=4
+platform=T10 #SEQ500/T1/T10
+barcodeStart=0
+barcodeLen=25
+umiStart=25
+umiLen=10
+umiRead=1
+mismatch=1
+#bcNum=
+
