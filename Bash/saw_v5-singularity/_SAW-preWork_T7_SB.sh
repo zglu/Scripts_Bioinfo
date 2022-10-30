@@ -17,17 +17,17 @@ mkdir 00.mapping 01.merge 02.count 03.register 04.tissuecut 05.spatialcluster 06
 
 # mapping script
 if [[ $SPEC = "human" ]]; then
-    sed "s/EXAMPLE-SN/${SN}/; s/EXAMPLE-FC/${FC}/; s/EXAMPLE-OUT/${OUTDIR}/; s/GRCm39_GENCODE/GRCh38.p13_GENCODE/" ../0_mapping_T7.sh > 00.mapping/s0_mapping_T7.sh
+    sed "s/EXAMPLE-SN/${SN}/; s/EXAMPLE-FC/${FC}/; s/EXAMPLE-OUT/${OUTDIR}/; s/GRCm39_GENCODE/GRCh38.p13_GENCODE/" ../0_mapping_T7_SB.sh > 00.mapping/s0_mapping_T7_${SB}.sh
 elif [[ $SPEC = "wheet" ]]; then
-    sed "s/EXAMPLE-SN/${SN}/; s/EXAMPLE-FC/${FC}/; s/EXAMPLE-OUT/${OUTDIR}/; s/GRCm39_GENCODE/Triticum_aestivum.IWGSC54/" ../0_mapping_T7.sh > 00.mapping/s0_mapping_T7.sh
+    sed "s/EXAMPLE-SN/${SN}/; s/EXAMPLE-FC/${FC}/; s/EXAMPLE-OUT/${OUTDIR}/; s/GRCm39_GENCODE/Triticum_aestivum.IWGSC54/" ../0_mapping_T7_SB.sh > 00.mapping/s0_mapping_T7_${SB}.sh
 elif [[ $SPEC = "axolotl" ]]; then
-    sed "s/EXAMPLE-SN/${SN}/; s/EXAMPLE-FC/${FC}/; s/EXAMPLE-OUT/${OUTDIR}/; s/GRCm39_GENCODE/axolotl_v6.0_sz/" ../0_mapping_T7.sh > 00.mapping/s0_mapping_T7.sh
+    sed "s/EXAMPLE-SN/${SN}/; s/EXAMPLE-FC/${FC}/; s/EXAMPLE-OUT/${OUTDIR}/; s/GRCm39_GENCODE/axolotl_v6.0_sz/" ../0_mapping_T7_SB.sh > 00.mapping/s0_mapping_T7_${SB}.sh
 else
-    sed "s/EXAMPLE-SN/${SN}/; s/EXAMPLE-FC/${FC}/; s/EXAMPLE-OUT/${OUTDIR}/" ../0_mapping_T7.sh > 00.mapping/s0_mapping_T7.sh 
+    sed "s/EXAMPLE-SN/${SN}/; s/EXAMPLE-FC/${FC}/; s/EXAMPLE-OUT/${OUTDIR}/" ../0_mapping_T7_SB.sh > 00.mapping/s0_mapping_T7_${SB}.sh 
 fi
 
 # bcPara files
-sed "s/EXAMPLE-SN/${SN}/g; s/EXAMPLE-FC/${FC}/g; s/EXAMPLE-OUT/${OUTDIR}/g; s/EXAMPLE-SB/${SB}/g" ../T7.bcPara > 00.mapping/L01.bcPara 
+sed "s/EXAMPLE-SN/${SN}/g; s/EXAMPLE-FC/${FC}/g; s/EXAMPLE-OUT/${OUTDIR}/g; s/EXAMPLE-SB/${SB}/g" ../T7_SB.bcPara > 00.mapping/L01_${SB}.bcPara 
 
 # count script
 if [[ $SPEC = "human" ]]; then
