@@ -4,9 +4,9 @@ TOTAL_READS="$(cat *barcodeMap.stat | grep total_reads | awk '{print $2}' | past
 
 MAPPED_CID_READS="$(cat *barcodeMap.stat | grep mapped_reads | awk '{print $2}' | paste -sd+ - | bc)"
 
-DISCARDED_CID_READS="$(cat *barcodeMap.stat | grep umi_filter_reads | awk '{print $2}' | paste -sd+ - | bc)"
+DISCARDED_MID_READS="$(cat *barcodeMap.stat | grep umi_filter_reads | awk '{print $2}' | paste -sd+ - | bc)"
 
-VALID_CID_READS="$(expr $MAPPED_CID_READS - $DISCARDED_CID_READS)"
+VALID_CID_READS="$(expr $MAPPED_CID_READS - $DISCARDED_MID_READS)"
 
 INVALID_READS="$(expr $TOTAL_READS - $MAPPED_CID_READS)"
 
