@@ -58,3 +58,11 @@ write.table(colData(sce.enhanced), file="bayesSpace_clusters_enhanced.txt")
 pdf(file=paste0("bayesSpace_clusters_enhanced_", n_clusters, ".pdf"))
 clusterPlot(sce.enhanced)
 dev.off()
+
+
+### add bayesspace to Seurat objective
+#SeuObj<-readRDS("683TL_F2_RGP_L20220920006.bin1.txt_BIN50_SCT.rds")
+#bayes<-read.table("683TL_F2_RGP_bayesSpace_clusters_8.txt", header=T, sep=" ")
+#SeuObj@meta.data$bayesspace<-bayes$spatial.cluster
+#SeuObj@meta.data$bayesspace <- as.factor(SeuObj@meta.data$bayesspace)
+#saveRDS(SeuObj, "_bayesspace.rds")

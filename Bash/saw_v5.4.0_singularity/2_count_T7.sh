@@ -1,0 +1,26 @@
+#!/bin/bash
+
+inDIR=/mgi_storage/sk/stomics
+SN=EXAMPLE-SN
+FC=EXAMPLE-FC
+outDIR=EXAMPLE-OUT
+visualSif=/mgi_storage/sk/stomics/SAW_v5.4.0.sif
+
+export SINGULARITY_BIND=$inDIR,$outDIR
+
+singularity exec ${visualSif} count \
+    -i ${outDIR}/00.mapping/${FC}.Aligned.sortedByCoord.out.bam\
+    -o ${outDIR}/02.count/${SN}.Aligned.sortedByCoord.out.merge.q10.dedup.target.bam \
+    -a ${inDIR}/reference/GRCm39_GENCODE/gencode.vM30.primary_assembly.annotation.gtf \
+    -s ${outDIR}/02.count/${SN}.Aligned.sortedByCoord.out.merge.q10.dedup.target.bam.summary.stat \
+    -e ${outDIR}/02.count/${SN}.raw.gef \
+    --sat_file ${outDIR}/02.count/raw_barcode_gene_exp.txt \
+    --umi_len 10 \
+    --umi_on \
+    --save_lq \
+    --save_dup \
+    --sn ${SN} \
+    -c 36 \
+    -m 128
+
+#--multi_map
