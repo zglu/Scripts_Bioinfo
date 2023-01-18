@@ -1,0 +1,251 @@
+---
+title: "Project Name: bin analysis"
+output: 
+  html_notebook:
+    toc: true
+    toc_depth: 3
+params:
+  bin20: "/Users/zlu/spatial/analysis-test/Conrad_Pancreas/SS200000745BL_A1_lasso_bin1.gem_BIN20.rds"
+  bin50: "/Users/zlu/spatial/analysis-test/Conrad_Pancreas/SS200000745BL_A1_lasso_bin1.gem_BIN50.rds"
+  bin100: "/Users/zlu/spatial/analysis-test/Conrad_Pancreas/SS200000745BL_A1_lasso_bin1.gem_BIN100.rds"
+  bin200: "/Users/zlu/spatial/analysis-test/Conrad_Pancreas/SS200000745BL_A1_lasso_bin1.gem_BIN200.rds"
+---
+
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+
+```{bash echo=FALSE}
+#Rscript -e "rmarkdown::render('bin_analysis_report.Rmd', params = list(bin20 = 'SS200000481BR_D5_WT_LPS_merged.gem_BIN20.rds', bin50='SS200000481BR_D5_WT_LPS_merged.gem_BIN50.rds', bin100='SS200000481BR_D5_WT_LPS_merged.gem_BIN100.rds'), output_file = 'test.html')"
+
+#Rscript -e "rmarkdown::render('bin_analysis_report.Rmd',output_file = 'Pancreas_out.html')"
+```
+
+
+```{r echo=FALSE}
+suppressMessages(library(Seurat))
+suppressMessages(library(ggplot2))
+suppressMessages(library(ggsci))
+suppressMessages(library(dplyr))
+suppressMessages(library(gridExtra))
+suppressMessages(library(Matrix))
+```
+
+
+```{r echo=FALSE}
+myCol<-unique(c(pal_d3("category10")(10),pal_rickandmorty("schwifty")(12), pal_lancet("lanonc")(9),
+      pal_npg("nrc")(10),pal_aaas("default")(10),pal_nejm("default")(8),
+			pal_jama("default")(7),pal_jco("default")(10),
+			pal_locuszoom("default")(7),pal_startrek("uniform")(7),
+			pal_tron("legacy")(7),pal_futurama("planetexpress")(12),
+			pal_simpsons("springfield")(16),
+			pal_gsea("default")(12)))
+```
+
+# Project information
+
+***
+
+# Results 
+
+## Tissue fluorescence imaging
+
+## Sequencing statistics
+
+We can embed the report html from SAW
+
+
+## Statistics based on different bin sizes
+
+```{r echo=FALSE}
+bin20<-readRDS(params$bin20) #params$bin20
+bin50<-readRDS(params$bin50)
+bin100<-readRDS(params$bin100)
+```
+
+The files used for analysis are:
+
+- bin20: ``r params$bin20``
+
+- bin50: ``r params$bin50``
+
+- bin100: ``r params$bin100``
+
+Basic stats include Gene Counts, MID Counts, and spatial distribution
+
+**Bin 20**:
+
+Summary of nFeature:
+```{r echo=FALSE}
+summary(bin20@meta.data$nFeature_RNA)
+```
+Summary of nCount: 
+```{r echo=FALSE}
+summary(bin20@meta.data$nCount_RNA)
+```
+
+**Bin 50**
+
+Summary of nFeature:
+```{r echo=FALSE}
+summary(bin50@meta.data$nFeature_RNA)
+```
+Summary of nCount: 
+```{r echo=FALSE}
+summary(bin50@meta.data$nCount_RNA)
+```
+
+
+**Bin 100**
+
+Summary of nFeature:
+```{r echo=FALSE}
+summary(bin100@meta.data$nFeature_RNA)
+```
+Summary of nCount: 
+```{r echo=FALSE}
+summary(bin100@meta.data$nCount_RNA)
+```
+
+## Standard analysis using bin50
+
+By default, we used `npc=30` for dimensionality reduction.
+
+```{r echo=FALSE}
+#SeuObj<-bin50
+SeuObj<-readRDS("/Users/zlu/spatial/analysis-test/Conrad_Pancreas/SS200000745BL_A1_lasso_bin1.gem_BIN50.rds")
+```
+
+```{r echo=FALSE}
+#SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
+
+#SeuObj<-SCTransform(SeuObj, vars.to.regress = "percent.mt", verbose = FALSE)
+#SeuObj <- RunPCA(SeuObj, assay = "SCT", verbose = FALSE)
+#SeuObj <- RunUMAP(SeuObj, reduction = "pca", dims = 1:30)
+#SeuObj <- FindNeighbors(SeuObj, reduction = "pca", dims = 1:30)
+#SeuObj <- FindClusters(SeuObj, verbose = FALSE)
+```
+
+
+```{r echo=FALSE}
+# markers
+DefaultAssay(SeuObj) <- "RNA"
+#deg <- FindAllMarkers(SeuObj,only.pos = TRUE, verbose = FALSE) # min.pct = 0.25, method: wilcox, logfc.threshold = 0.5,
+deg<-read.csv("/Users/zlu/spatial/analysis-test/VIB_mouse_liver/SS200000481BR_D5_WT_LPS_merged.gem_BIN50.rds_SCT.rds_allMarkers.csv")
+
+deg<-subset(deg, deg$p_val<1e-10)
+#write.csv(deg,"bin50_allMarkers.csv")
+
+#deg_roc <- FindAllMarkers(SeuObj,only.pos = TRUE, test.use="roc",verbose = FALSE) # method: roc
+#write.csv(deg_roc,"bin50_allMarkers_roc.csv")
+
+deg.top <- deg %>% group_by(cluster) %>% top_n(n = 1, wt = avg_log2FC)
+deg.topmarkers<-as.vector(deg.top$gene)
+
+```
+
+```{r echo=FALSE}
+# spatial feature plot
+p1<-ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= nFeature_RNA))+
+  geom_tile()+
+  theme_void()+
+  coord_fixed()+
+  scale_fill_gradient(low = "#fcf5eb", high = "#800080")+
+  labs(fill="nGene",x=NULL,y=NULL,title = NULL)+
+  theme(axis.title.x = element_text(size = 15),axis.title.y = element_text(size = 15) )+ 
+  theme(plot.title = element_text(hjust =0.5,vjust = 0.5,size = 15))
+
+p2<-ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= nCount_RNA))+
+  geom_tile()+
+  theme_void()+
+  coord_fixed()+
+  scale_fill_gradient(low = "#fcf5eb", high = "#800080")+
+  labs(fill="nUMI",x=NULL,y=NULL,title = NULL)+
+  theme(axis.title.x = element_text(size = 15),axis.title.y = element_text(size = 15) )+ 
+  theme(plot.title = element_text(hjust =0.5,vjust = 0.5,size = 15))
+
+
+p3 <- ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= seurat_clusters))+ 
+  geom_tile()+
+  theme_void()+
+  coord_fixed()+ 
+  scale_fill_manual(values = myCol)+
+  labs(fill="Seurat clusters")
+
+p4 <- DimPlot(SeuObj, reduction = "umap", cols=myCol, label = TRUE) + NoLegend() + coord_fixed()
+
+p6<-DotPlot(SeuObj, features = deg.topmarkers, cols = c("lightgrey", "red")) + NoLegend() + RotatedAxis()
+```
+
+**Here is the spatial distribution of nGene and nUMI**
+
+```{r echo=FALSE}
+grid.arrange(p1,p2,ncol = 2, top="Spatial distribution of nGene and nUMI")
+```
+Interactive plot of nGene distribution
+```{r}
+suppressMessages(library(plotly))
+figplotly1<-plot_ly(data=SeuObj@meta.data, x=~coord_x, y=~coord_y, text = ~paste('nGene', nFeature_RNA), color = ~nFeature_RNA, colorscale='Purples',reversescale =F, verbose=FALSE) #https://plotly.com/r/builtin-colorscales/
+figplotly1
+```
+
+Interactive plot of nUMI distribution
+```{r}
+figplotly2<-plot_ly(data=SeuObj@meta.data, x=~coord_x, y=~coord_y, text = ~paste('nCount', nCount_RNA), color = ~nCount_RNA, colorscale='Blues',reversescale =F, verbose=FALSE)
+figplotly2
+```
+
+
+
+Here is the clustering result from Seurat
+
+```{r echo=FALSE}
+grid.arrange(p4,p3,ncol = 2)
+```
+
+```{r echo=FALSE}
+message("Number of cells/bin_units in each cluster:")
+table(SeuObj@active.ident)
+```
+
+
+Here is the dot plot from identified markers
+
+```{r echo=FALSE}
+print(p6)
+```
+
+Spatial distribution of top markers from each cluster
+```{r echo=FALSE}
+myFeature<-deg.topmarkers
+p <- lapply(myFeature, function(x) {
+tmexp<-as.matrix(SeuObj@assays$SCT@data[x,])  
+ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= tmexp[,1]))+ 
+  geom_tile()+
+  theme_void()+
+  coord_fixed()+ 
+  scale_fill_gradient(low = "#fcf5eb", high = "#800080")+
+  labs(title=paste0(x, " in sample"), fill="") #data
+})
+
+```
+
+```{r echo=FALSE}
+marrangeGrob(p, nrow=3, ncol=3)
+```
+
+***
+# Methods
+## Technical highlights
+## Sample processing
+## Sequencing
+## Bioinformatics analyses
+### Quality control of sequencing data
+### Genome alignment
+### Quantification of gene expression
+### Clustering analysis
+### Spatially varible genes
+### Functional enrichment analysis
+
