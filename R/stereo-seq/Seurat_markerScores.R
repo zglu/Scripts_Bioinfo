@@ -27,7 +27,7 @@ SeuObj<-readRDS(args[1])
 #DefaultAssay(SeuObj)<- args[3]
 DefaultAssay(SeuObj)<- "RNA" #or SCT
 
-#### AUCell
+#### AUCell ####
 message("Cell assignment using AUCell:")
 geneSets<-preprocess.signatures(args[2])
 exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj))
@@ -79,7 +79,7 @@ thresholds <- AUCell_exploreThresholds(cells_AUC, plotHist=TRUE)
 #print(p.aucell)
 dev.off()
 
-#### UCell 
+#### UCell ####
 message("Calculating UCell scores:")
 SeuObj<-AddModuleScore_UCell(SeuObj, features=geneSets) # name=NULL
 #p.ucell<-FeaturePlot(SeuObj, reduction="spatial", features=names(geneSets), ncol=4, coord.fixed=TRUE, pt.size=0.01)#keep.scale=all/feature/NULL
@@ -96,7 +96,20 @@ ggsave(
 #write.csv(SeuObj@meta.data, file=paste0(args[1], "_sigScores.csv"))
 saveRDS(SeuObj, file=paste0(args[1], "_sigScores.rds"))
 
-#### Seurat addModuleScore
+#### SCINA ####
+message("Assignment using SCINA:")
+SeuObj.scina = SCINA(exp = exprMatrix, signatures = geneSets, rm_overlap = FALSE, allow_unknown = TRUE)#signatures=markers$genesets
+SeuObj@meta.data$SCINA <- SeuObj.scina$cell_labels
+SeuObj@meta.data$scina_prob <- SeuObj.scina$probabilities
+
+pdf(paste0(args[1], "_SCINA_cellTypes.pdf"), width=15, height=9)
+ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= SCINA))+ 
+   geom_tile()+ theme_void()+ coord_fixed()+ 
+   scale_fill_manual(values = myCol)+
+   labs(fill="SCINA clusters")
+dev.off()
+
+#### Seurat addModuleScore ####
 message("Calculating scores using addModuleScore:")
 # Seurat calculate the average expression of each cluster, thus a normalisation will needed
 # SCT returns 3000 HVGs
