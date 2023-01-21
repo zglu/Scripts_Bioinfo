@@ -78,6 +78,7 @@ message("S1_Pyramidal markers present in assay: ", length(S1_Pyramidal))
 
 
 # find markers
+DefaultAssay(SeuObj)<-"RNA"
 c13.markers<-FindMarkers(SeuObj, ident.1=13, only.pos=TRUE, test.use="roc")
 c7.markers<-FindMarkers(SeuObj, ident.1=7, only.pos=TRUE, test.use="roc", logfc.threshold = 0.5, min.pct = 0.25)
 
@@ -130,4 +131,33 @@ ggsave(
    plot = marrangeGrob(p, nrow=3, ncol=3), 
    width = 15, height = 9
 )
+
+
+## SCINA to identify microglia
+SeuObj<-readRDS("Integrated_SCT-RPCA.rds")
+DefaultAssay(SeuObj)<-"RNA"
+geneSets<-preprocess.signatures("Zeisel2015_markers.csv")
+exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj))
+
+SeuObj.scina = SCINA(exp = exprMatrix, signatures = geneSets, rm_overlap = FALSE, allow_unknown = TRUE)
+SeuObj@meta.data$SCINA <- SeuObj.scina$cell_labels
+
+table(SeuObj@meta.data$seurat_clusters[which(SeuObj@meta.data$SCINA=="Microglia")])
+
+microglia<-subset(SeuObj, subset=SCINA=="Microglia")
+microglia<-FindNeighbors(microglia, dims=1:20) #k.param = 5
+microglia<-FindClusters(microglia, res=0.15)
+saveRDS(microglia, "scina_Microglia_fromIntegrated.RDS")
+
+microglia.allmarkers<-FindAllMarkers(microglia, only.pos=TRUE, test.use="roc")
+
+
+myCol<-unique(c(brewer.pal(8, "Accent"), brewer.pal(12, "Set3"),brewer.pal(12, "Paired"), brewer.pal(8, "Dark2"), 
+     brewer.pal(8, "Set1")))
+
+pdf(paste0("Integrated", "_SCINA_cellTypes.pdf"), width=15, height=9)
+DimPlot(SeuObj, reduction = "umap", cols=myCol, group.by='SCINA', label = FALSE) + coord_fixed()
+DimPlot(microglia, label=FALSE)+coord_fixed()
+dev.off()
+
 

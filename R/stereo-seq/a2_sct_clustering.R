@@ -37,6 +37,12 @@ SeuObj<-readRDS(args[1])
 #saveRDS(SeuObj_fil, file=paste0(args[1], "_filtered.rds"))
 #SeuObj<-readRDS(file=paste0(args[1], "_filtered.rds"))
 
+
+message("Log-normalize on RNA counts: ")
+SeuObj %>%  NormalizeData() %>%
+  FindVariableFeatures() %>%
+  ScaleData(features = rownames(SeuObj)) -> SeuObj
+
 message("SCTransform-RunPCA-RunUMAP-FindNeighbors-FindClusters:")
 
 #SeuObj %>% SCTransform(method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE) %>%
@@ -64,9 +70,9 @@ message("Number of cells per cluster:")
 table(SeuObj@active.ident)
 
 DefaultAssay(SeuObj) <- "RNA"
-deg <- FindAllMarkers(SeuObj,only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.5) # method: wilcox
-deg<-subset(deg, deg$p_val<1e-20)
-write.csv(deg,paste0(args[1],"_SCT.rds_allMarkers.csv"))
+#deg <- FindAllMarkers(SeuObj,only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.5) # method: wilcox
+#deg<-subset(deg, deg$p_val<1e-20)
+#write.csv(deg,paste0(args[1],"_SCT.rds_allMarkers.csv"))
 
 deg_roc <- FindAllMarkers(SeuObj,only.pos = TRUE, test.use="roc") # method: roc
 write.csv(deg_roc,paste0(args[1],"_SCT.rds_allMarkers_roc",".csv"))

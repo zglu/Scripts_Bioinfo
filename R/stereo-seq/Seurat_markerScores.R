@@ -1,4 +1,4 @@
-# calculate module scores using Seurat addModuleScore, AUCell, and UCell 
+# calculate module scores using Seurat addModuleScore, AUCell/UCell, and SCINA 
 
 args<-commandArgs(T)
 
@@ -18,8 +18,8 @@ suppressPackageStartupMessages({
   library(SingleCellExperiment)
 })
 
-myCol<-unique(c(brewer.pal(8, "Dark2"), brewer.pal(12, "Paired"), brewer.pal(12, "Set3"),
-     brewer.pal(8, "Set1"), brewer.pal(8, "Accent")))
+myCol<-unique(c(brewer.pal(8, "Accent"), brewer.pal(12, "Set3"),brewer.pal(12, "Paired"), brewer.pal(8, "Dark2"), 
+     brewer.pal(8, "Set1")))
 
 SeuObj<-readRDS(args[1])
 
@@ -28,12 +28,15 @@ SeuObj<-readRDS(args[1])
 DefaultAssay(SeuObj)<- "RNA" #or SCT
 
 #### AUCell ####
+# default only the top 5% of the genes in the ranking
+# The AUC estimates the proportion of genes in the geneset that are highly expressed in each cell, ideally bi-modal
+# works best with a large number of marker genes
 message("Cell assignment using AUCell:")
 geneSets<-preprocess.signatures(args[2])
-exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj))
+exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj)) # data always contains the log-normed version of counts
 cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE)
 #save(cells_rankings, file="cells_rankings.RData")
-cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings)
+cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=nrow(cells_rankings)*0.05) # default top 5%
 #save(cells_AUC, file="cells_AUC.RData")
 
 # add scores to metadata
@@ -45,12 +48,6 @@ SeuObj@meta.data<-cbind(SeuObj@meta.data, auc.scores)
 p2<-lapply(rownames(cells_AUC), function(i) {
     FeaturePlot(SeuObj, reduction="spatial", features = paste0(i, "_AUC"), label = FALSE, repel = TRUE) + coord_fixed()+theme_void()+scale_colour_gradientn(colours = brewer.pal(n = 9, name = "YlGnBu"))+labs(color="AUCellScore")
 })
-
-# error with ggplot2
-#names<-paste0(rownames(cells_AUC), "_AUC")
-#p2<-lapply(names, function(i) {
-#    ggplot(SeuObj@meta.data, aes(coord_x, coord_y, fill=i))+geom_tile() + coord_fixed()+theme_void()+scale_fill_gradientn(colours = brewer.pal(n = 9, name = "YlGnBu"))+labs(fill="AUCellScore")
-#})
 
 ggsave(
    filename = paste0(args[1], "_AUCellScores.pdf"),
@@ -67,7 +64,7 @@ colnames(assignmentTable)[2] <- "geneSet"
 assignments <- assignmentTable %>% dplyr::group_by(cell) %>% 
   dplyr::summarize(AUCellType = paste(geneSet, collapse = "/")) %>%
   dplyr::group_by(AUCellType) %>%
-  dplyr::mutate(n = length(unique(cell))) # %>% dplyr::filter(n > 5)
+  dplyr::mutate(n = length(unique(cell))) %>% dplyr::filter(n > 5)
 # add to meta data, NA if no match
 SeuObj@meta.data$AUCellType<-assignments$AUCellType[match(rownames(SeuObj@meta.data),assignments$cell)]
 
@@ -75,13 +72,18 @@ pdf(paste0(args[1], "_AUCell_thresholds_assignments.pdf"), width=15, height=9)
 set.seed(333)
 par(mfrow=c(3,4))
 thresholds <- AUCell_exploreThresholds(cells_AUC, plotHist=TRUE)
-#p.aucell<-ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= AUCellType))+geom_tile()+ theme_void()+ coord_fixed()#+ scale_fill_manual(values = myCol)
-#print(p.aucell)
+# cell type spatial plot
+p.aucell<-ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= AUCellType))+geom_tile()+ theme_void()+ coord_fixed()#+ scale_fill_manual(values = myCol)
+print(p.aucell)
 dev.off()
 
 #### UCell ####
+# Mann-Whitney U statistic; Wilcoxon rank-sum test
+# equivalent to AUC; faster and less RAM required
 message("Calculating UCell scores:")
 SeuObj<-AddModuleScore_UCell(SeuObj, features=geneSets) # name=NULL
+#SeuObj <- SmoothKNN(SeuObj, reduction="pca", signature.names=names(geneSets))
+
 #p.ucell<-FeaturePlot(SeuObj, reduction="spatial", features=names(geneSets), ncol=4, coord.fixed=TRUE, pt.size=0.01)#keep.scale=all/feature/NULL
 p3<-lapply(names(geneSets), function(i) {
     FeaturePlot(SeuObj, reduction="spatial", features = paste0(i, "_UCell"), label = FALSE, repel = TRUE) + coord_fixed()+theme_void()+scale_colour_gradientn(colours = brewer.pal(n = 9, name = "RdPu"))+labs(color="UCellScore")
@@ -93,25 +95,38 @@ ggsave(
    width = 25, height = 15
 )
 
+#### SCINA ####
+message("Assignment using SCINA:")
+SeuObj.scina = SCINA(exp = exprMatrix, signatures = geneSets, rm_overlap = FALSE, allow_unknown = TRUE) #max_iter = 100, convergence_n = 10, convergence_rate = 0.999, sensitivity_cutoff = 0.9
+SeuObj@meta.data$SCINA <- SeuObj.scina$cell_labels
+#SeuObj@meta.data$scina_prob <- SeuObj.scina$probabilities
+
+table(SeuObj@meta.data$SCINA)
+
+#profiling subsets
+#mela<-subset(SeuObj, subset=SCINA=="Melanoma") ## CHANGE
+#geneSets2<-preprocess.signatures("malignant_states.csv")
+#exprMatrix2<-as.matrix(Seurat::GetAssayData(mela))
+#mela.scina<-SCINA(exp = exprMatrix2, signatures = geneSets2, rm_overlap = FALSE, allow_unknown = FALSE)
+#SeuObj@meta.data$malig_states<-mela.scina$cell_labels[match(rownames(SeuObj@meta.data),rownames(mela@meta.data))]
+
+pdf(paste0(args[1], "_SCINA_cellTypes.pdf"), width=25, height=15)
+pscina1<-ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= SCINA))+ 
+	geom_tile()+ theme_void()+ coord_fixed()+ scale_fill_manual(values = myCol)+ labs(fill="SCINA")
+#pscina2<-ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= malig_states))+ 
+#	geom_tile()+ theme_void()+ coord_fixed()+ scale_fill_manual(values = myCol)+ labs(fill="malig_states")
+#grid.arrange(pscina1, pscina2, ncol=2)
+print(pscina1)
+dev.off()
+
+### export metadata
 #write.csv(SeuObj@meta.data, file=paste0(args[1], "_sigScores.csv"))
 saveRDS(SeuObj, file=paste0(args[1], "_sigScores.rds"))
 
-#### SCINA ####
-message("Assignment using SCINA:")
-SeuObj.scina = SCINA(exp = exprMatrix, signatures = geneSets, rm_overlap = FALSE, allow_unknown = TRUE)#signatures=markers$genesets
-SeuObj@meta.data$SCINA <- SeuObj.scina$cell_labels
-SeuObj@meta.data$scina_prob <- SeuObj.scina$probabilities
-
-pdf(paste0(args[1], "_SCINA_cellTypes.pdf"), width=15, height=9)
-ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= SCINA))+ 
-   geom_tile()+ theme_void()+ coord_fixed()+ 
-   scale_fill_manual(values = myCol)+
-   labs(fill="SCINA clusters")
-dev.off()
 
 #### Seurat addModuleScore ####
+# genes are binned based on their average expression across the whole dataset for normalization purposes
 message("Calculating scores using addModuleScore:")
-# Seurat calculate the average expression of each cluster, thus a normalisation will needed
 # SCT returns 3000 HVGs
 DefaultAssay(SeuObj)<- args[3] #SCT / integrated
 
@@ -138,9 +153,7 @@ ggsave(
 )
 
 
-
 ### combine output pdfs
 library(qpdf)
-qpdf::pdf_combine(input = c(paste0(args[1], "_SeuratScores.pdf"), paste0(args[1], "_UCellScores.pdf"), paste0(args[1], "_AUCellScores.pdf"),paste0(args[1], "_AUCell_thresholds_assignments.pdf")), output = paste0(args[1], "_sigScores.pdf"))
-
+qpdf::pdf_combine(input = c(paste0(args[1], "_SeuratScores.pdf"), paste0(args[1], "_UCellScores.pdf"), paste0(args[1], "_AUCellScores.pdf"),paste0(args[1], "_AUCell_thresholds_assignments.pdf"), paste0(args[1], "_SCINA_cellTypes.pdf")), output = paste0(args[1], "_sigScores.pdf"))
 

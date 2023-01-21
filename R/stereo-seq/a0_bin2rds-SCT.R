@@ -173,6 +173,12 @@ p10 <- ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fil
 # filtering empty bins
 SeuObj<-subset(SeuObj, subset = nFeature_RNA > 0 & nCount_RNA > 0)
 
+
+message("Log-normalize on RNA counts: ")
+SeuObj %>%  NormalizeData() %>%
+  FindVariableFeatures() %>%
+  ScaleData(features = rownames(SeuObj)) -> SeuObj
+
 message("SCTransform-RunPCA-RunUMAP-FindNeighbors-FindClusters:")
 #SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
 SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", verbose = FALSE)

@@ -163,6 +163,11 @@ myCol<-unique(c(brewer.pal(8, "Dark2"), brewer.pal(12, "Paired"), brewer.pal(12,
 
 #SeuObj<-subset(SeuObj, subset = nFeature_RNA > 50 & nCount_RNA > 100 & percent.mt < 20)
 
+message("Log-normalize on RNA counts: ")
+SeuObj %>%  NormalizeData() %>%
+  FindVariableFeatures() %>%
+  ScaleData(features = rownames(SeuObj)) -> SeuObj
+
 message("SCTransform-RunPCA-RunUMAP-FindNeighbors-FindClusters:")
 #SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
 SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", verbose = FALSE)
