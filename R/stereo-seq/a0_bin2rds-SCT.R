@@ -173,15 +173,14 @@ p10 <- ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fil
 # filtering empty bins
 SeuObj<-subset(SeuObj, subset = nFeature_RNA > 0 & nCount_RNA > 0)
 
-
+# log-normalisation
 message("Log-normalize on RNA counts: ")
 SeuObj %>%  NormalizeData() %>%
   FindVariableFeatures() %>%
-  ScaleData(features = rownames(SeuObj)) -> SeuObj
+  ScaleData() -> SeuObj #features = rownames(SeuObj)
 
 message("SCTransform-RunPCA-RunUMAP-FindNeighbors-FindClusters:")
-#SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
-SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", verbose = FALSE)
+SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", verbose = FALSE) #vars.to.regress = "percent.mt"
 SeuObj <- RunPCA(SeuObj, assay = "SCT", verbose = FALSE)
 SeuObj <- RunUMAP(SeuObj, reduction = "pca", dims = 1:30)
 SeuObj <- FindNeighbors(SeuObj, reduction = "pca", dims = 1:30)
@@ -204,6 +203,7 @@ message("RDS with sct data saved.")
 message("Number of cells per cluster:")
 table(SeuObj@active.ident)
 
+#############################
 DefaultAssay(SeuObj) <- "RNA"
 #deg <- FindAllMarkers(SeuObj,only.pos = TRUE)#, min.pct = 0.25, logfc.threshold = 0.5) # method: wilcox
 #deg<-subset(deg, deg$p_val<1e-20)

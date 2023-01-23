@@ -25,6 +25,7 @@ markers<-preprocess.signatures("Guilliams_top50Markers.csv")
 
 library(Seurat)
 SeuObj<-readRDS(args[1])
+DefaultAssay(SeuObj)<-"SCT" # "RNA"
 #SeuObj <- FindClusters(SeuObj, verbose = FALSE, res=0.25)
 
 SeuObj.exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj))

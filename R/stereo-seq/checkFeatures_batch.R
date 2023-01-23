@@ -18,7 +18,7 @@ SeuObj<-readRDS(args[1])
 idlist<-read.table(args[2], header=F)
 myFeatures<-as.vector(idlist$V1)
 
-data<-SeuObj@assays$SCT@data
+data<-SeuObj@assays$RNA@data
 subdata<-data[which(rownames(data) %in% idlist$V1),]
 
 p <- lapply(myFeatures, function(x) {

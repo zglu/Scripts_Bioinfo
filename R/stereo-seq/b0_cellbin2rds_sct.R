@@ -25,8 +25,13 @@ cellbin<-fread(args[1], header=T)
 message("Cell bin data looks like this:")
 head(cellbin)
 
-cellbin<-cellbin[which(cellbin$label>0),]
+if ('ExonCount' %in% colnames(cellbin)) {
+    colnames(cellbin)[1:6]<-c("geneID", "x", "y", "MIDCounts", "ExonCounts","cell")
+} else {
 colnames(cellbin)[1:5]<-c("geneID", "x", "y", "MIDCounts", "cell")
+}
+
+cellbin<-cellbin[which(cellbin$cell>0),]
 
 cellbin$cell<-as.character(cellbin$cell)
 
@@ -161,16 +166,15 @@ myCol<-unique(c(brewer.pal(8, "Dark2"), brewer.pal(12, "Paired"), brewer.pal(12,
      brewer.pal(8, "Set1"), brewer.pal(8, "Accent")))
 
 
-#SeuObj<-subset(SeuObj, subset = nFeature_RNA > 50 & nCount_RNA > 100 & percent.mt < 20)
+SeuObj<-subset(SeuObj, subset = nFeature_RNA > 10 & nCount_RNA > 10 & percent.mt < 30)
 
 message("Log-normalize on RNA counts: ")
 SeuObj %>%  NormalizeData() %>%
   FindVariableFeatures() %>%
-  ScaleData(features = rownames(SeuObj)) -> SeuObj
+  ScaleData() -> SeuObj #features = rownames(SeuObj)
 
 message("SCTransform-RunPCA-RunUMAP-FindNeighbors-FindClusters:")
-#SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", vars.to.regress = "percent.mt", verbose = FALSE)
-SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", verbose = FALSE)
+SeuObj<-SCTransform(SeuObj, method = "glmGamPoi", verbose = FALSE) #vars.to.regress = "percent.mt",
 SeuObj <- RunPCA(SeuObj, assay = "SCT", verbose = FALSE)
 SeuObj <- RunUMAP(SeuObj, reduction = "pca", dims = 1:30)
 SeuObj <- FindNeighbors(SeuObj, reduction = "pca", dims = 1:30)
@@ -246,7 +250,7 @@ tmexp<-as.matrix(SeuObj@assays$SCT@data[x,])  #@counts - unnormalised counts; @d
 ggplot(SeuObj@meta.data, aes(coord_x, coord_y))+geom_point(aes(color = tmexp[,1]), shape=".")+
     theme_void()+coord_fixed()+
     scale_color_gradient(low = "#fcf5eb", high = "#800080")+
-    labs(title=x, color="")
+    labs(title=x, color="SCT")
 })
 
 ggsave(

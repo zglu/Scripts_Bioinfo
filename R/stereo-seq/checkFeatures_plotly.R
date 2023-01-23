@@ -18,14 +18,9 @@ SeuObj<-readRDS(args[1])
 ##### top markers plots
 
 goi<-as.character(args[2])
-## raw MID counts
 #tmexp<-as.matrix(SeuObj@assays$RNA@counts[goi,]) #@counts - unnormalised counts; @data normlised data (log or sct)  
 
-## SCT normalised data
-tmexp<-as.matrix(SeuObj@assays$SCT@data[goi,]) #@counts - unnormalised counts; @data normlised data (log or sct)  
-
-## SCT unnormalised data
-#tmexp<-as.matrix(SeuObj@assays$SCT@counts[goi,]) #@counts - unnormalised counts; @data normlised data (log or sct)  
+tmexp<-as.matrix(SeuObj@assays$RNA@data[goi,]) 
 
 suppressMessages(library(plotly))
 

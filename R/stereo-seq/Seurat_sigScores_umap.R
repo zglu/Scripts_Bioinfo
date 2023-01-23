@@ -3,7 +3,7 @@
 args<-commandArgs(T)
 
 if (length(args)<3) {
-  stop("Usage: Rscript Seurat_markerScores.R [data.RDS] [markers.csv] [assay(SCT/RNA/integrated)]")
+  stop("Usage: Rscript Seurat_markerScores.R [data.RDS] [markers.csv] [assay(SCT/RNA]")
 }
 
 suppressPackageStartupMessages({
@@ -24,8 +24,7 @@ myCol<-unique(c(brewer.pal(8, "Accent"), brewer.pal(12, "Set3"),brewer.pal(12, "
 SeuObj<-readRDS(args[1])
 
 # AUCell and UCell are ranking-based, independent of normalisation
-#DefaultAssay(SeuObj)<- args[3]
-DefaultAssay(SeuObj)<- "RNA" #or SCT
+DefaultAssay(SeuObj)<- args[3]
 
 #### AUCell ####
 # default only the top 5% of the genes in the ranking
@@ -46,7 +45,7 @@ SeuObj@meta.data<-cbind(SeuObj@meta.data, auc.scores)
 
 #names(geneSets)
 p2<-lapply(rownames(cells_AUC), function(i) {
-    FeaturePlot(SeuObj, reduction="spatial", features = paste0(i, "_AUC"), label = FALSE, repel = TRUE) + coord_fixed()+theme_void()+scale_colour_gradientn(colours = brewer.pal(n = 9, name = "YlGnBu"))+labs(color="AUCellScore")
+    FeaturePlot(SeuObj, features = paste0(i, "_AUC"), label = FALSE, repel = TRUE) + coord_fixed()+theme_void()+scale_colour_gradientn(colours = brewer.pal(n = 9, name = "YlGnBu"))+labs(color="AUCellScore")
 })
 
 ggsave(
@@ -72,21 +71,20 @@ pdf(paste0(args[1], "_AUCell_thresholds_assignments.pdf"), width=15, height=9)
 set.seed(333)
 par(mfrow=c(3,4))
 thresholds <- AUCell_exploreThresholds(cells_AUC, plotHist=TRUE)
-# cell type spatial plot
-p.aucell<-ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= AUCellType))+geom_tile()+ theme_void()+ coord_fixed()#+ scale_fill_manual(values = myCol)
-print(p.aucell)
+DimPlot(SeuObj, reduction="umap", fill=AUCellType)+ coord_fixed()
 dev.off()
 
 #### UCell ####
 # Mann-Whitney U statistic; Wilcoxon rank-sum test
 # equivalent to AUC; faster and less RAM required
 message("Calculating UCell scores:")
+DefaultAssay(SeuObj)<-args[3]
 SeuObj<-AddModuleScore_UCell(SeuObj, features=geneSets) # name=NULL
 #SeuObj <- SmoothKNN(SeuObj, reduction="pca", signature.names=names(geneSets))
 
 #p.ucell<-FeaturePlot(SeuObj, reduction="spatial", features=names(geneSets), ncol=4, coord.fixed=TRUE, pt.size=0.01)#keep.scale=all/feature/NULL
 p3<-lapply(names(geneSets), function(i) {
-    FeaturePlot(SeuObj, reduction="spatial", features = paste0(i, "_UCell"), label = FALSE, repel = TRUE) + coord_fixed()+theme_void()+scale_colour_gradientn(colours = brewer.pal(n = 9, name = "RdPu"))+labs(color="UCellScore")
+    FeaturePlot(SeuObj, features = paste0(i, "_UCell"), label = FALSE, repel = TRUE) + coord_fixed()+theme_void()+scale_colour_gradientn(colours = brewer.pal(n = 9, name = "RdPu"))+labs(color="UCellScore")
 })
 
 ggsave(
@@ -97,6 +95,11 @@ ggsave(
 
 #### SCINA ####
 message("Assignment using SCINA:")
+# SCINA use normalised counts
+DefaultAssay(SeuObj)<-args[3]
+geneSets<-preprocess.signatures(args[2])
+exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj)) # data always contains the log-normed version of counts
+
 SeuObj.scina = SCINA(exp = exprMatrix, signatures = geneSets, rm_overlap = FALSE, allow_unknown = TRUE) #max_iter = 100, convergence_n = 10, convergence_rate = 0.999, sensitivity_cutoff = 0.9
 SeuObj@meta.data$SCINA <- SeuObj.scina$cell_labels
 #SeuObj@meta.data$scina_prob <- SeuObj.scina$probabilities
@@ -111,12 +114,7 @@ table(SeuObj@meta.data$SCINA)
 #SeuObj@meta.data$malig_states<-mela.scina$cell_labels[match(rownames(SeuObj@meta.data),rownames(mela@meta.data))]
 
 pdf(paste0(args[1], "_SCINA_cellTypes.pdf"), width=25, height=15)
-pscina1<-ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= SCINA))+ 
-	geom_tile()+ theme_void()+ coord_fixed()+ scale_fill_manual(values = myCol)+ labs(fill="SCINA")
-#pscina2<-ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= malig_states))+ 
-#	geom_tile()+ theme_void()+ coord_fixed()+ scale_fill_manual(values = myCol)+ labs(fill="malig_states")
-#grid.arrange(pscina1, pscina2, ncol=2)
-print(pscina1)
+DimPlot(SeuObj, reduction="umap", fill=SCINA, col=myCol)+ coord_fixed()
 dev.off()
 
 ### export metadata
@@ -128,7 +126,7 @@ saveRDS(SeuObj, file=paste0(args[1], "_sigScores.rds"))
 # genes are binned based on their average expression across the whole dataset for normalization purposes
 message("Calculating scores using addModuleScore:")
 # SCT returns 3000 HVGs
-DefaultAssay(SeuObj)<- args[3] #SCT / integrated
+DefaultAssay(SeuObj)<- args[3] #SCT / RNA
 
 #allgenes<-rownames(SeuObj@assays$integrated@data) #SCT / integrated / RNA
 allgenes<-rownames(SeuObj)
@@ -143,7 +141,7 @@ p1 <- lapply(colnames(markers), function(i) {
 	m <- intersect(m, allgenes)
 	#print(i)
 	SeuObj<-AddModuleScore(SeuObj, features=list(m), name=i)
-	FeaturePlot(SeuObj, reduction="spatial", features = paste0(i, "1"), label = FALSE, repel = TRUE) + coord_fixed()+theme_void()+scale_colour_gradientn(colours = brewer.pal(n = 9, name = "YlOrRd"))+labs(color="SeuratScore")
+	FeaturePlot(SeuObj, features = paste0(i, "1"), label = FALSE, repel = TRUE) + coord_fixed()+theme_void()+scale_colour_gradientn(colours = brewer.pal(n = 9, name = "YlOrRd"))+labs(color="SeuratScore")
 })
 
 ggsave(
@@ -155,5 +153,5 @@ ggsave(
 
 ### combine output pdfs
 library(qpdf)
-qpdf::pdf_combine(input = c(paste0(args[1], "_SeuratScores.pdf"), paste0(args[1], "_UCellScores.pdf"), paste0(args[1], "_AUCellScores.pdf"),paste0(args[1], "_AUCell_thresholds_assignments.pdf"), paste0(args[1], "_SCINA_cellTypes.pdf")), output = paste0(args[1], "_sigScores.pdf"))
+qpdf::pdf_combine(input = c(paste0(args[1], "_SeuratScores.pdf"), paste0(args[1], "_UCellScores.pdf"), paste0(args[1], "_AUCellScores.pdf"),paste0(args[1], "_AUCell_thresholds_assignments.pdf"), paste0(args[1], "_SCINA_cellTypes.pdf")), output = paste0(args[1], "_sigScores_",args[3],".pdf"))
 

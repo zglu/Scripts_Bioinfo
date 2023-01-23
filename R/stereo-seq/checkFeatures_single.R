@@ -17,14 +17,14 @@ SeuObj<-readRDS(args[1])
 ##### top markers plots
 
 goi<-as.character(args[2])
-## raw MID counts
-#tmexp<-as.matrix(SeuObj@assays$RNA@counts[goi,]) #@counts - unnormalised counts; @data normlised data (log or sct)  
 
-## SCT normalised data
-tmexp<-as.matrix(SeuObj@assays$SCT@data[goi,]) #@counts - unnormalised counts; @data normlised data (log or sct)  
+#tmexp<-as.matrix(SeuObj@assays$RNA@counts[goi,]) #RNA @counts - raw counts; RNA data: log-normalised counts
 
-## SCT unnormalised data
-#tmexp<-as.matrix(SeuObj@assays$SCT@counts[goi,]) #@counts - unnormalised counts; @data normlised data (log or sct)  
+## log normalised data -- all features
+tmexp<-as.matrix(SeuObj@assays$RNA@data[goi,]) #SCT @counts - corrected counts; SCT @data - log1p(SCT counts)
+
+## SCT batch corrected counts or norm data (less features)
+#tmexp<-as.matrix(SeuObj@assays$SCT@data[goi,]) 
 
 pdf(paste0(args[2],"_sctData.pdf"))
 

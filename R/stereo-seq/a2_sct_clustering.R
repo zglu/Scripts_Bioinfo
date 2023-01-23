@@ -41,7 +41,7 @@ SeuObj<-readRDS(args[1])
 message("Log-normalize on RNA counts: ")
 SeuObj %>%  NormalizeData() %>%
   FindVariableFeatures() %>%
-  ScaleData(features = rownames(SeuObj)) -> SeuObj
+  ScaleData() -> SeuObj #features = rownames(SeuObj)
 
 message("SCTransform-RunPCA-RunUMAP-FindNeighbors-FindClusters:")
 

@@ -79,6 +79,9 @@ message("S1_Pyramidal markers present in assay: ", length(S1_Pyramidal))
 
 # find markers
 DefaultAssay(SeuObj)<-"RNA"
+
+SeuObj%>% NormalizeData() --> SeuObj
+
 c13.markers<-FindMarkers(SeuObj, ident.1=13, only.pos=TRUE, test.use="roc")
 c7.markers<-FindMarkers(SeuObj, ident.1=7, only.pos=TRUE, test.use="roc", logfc.threshold = 0.5, min.pct = 0.25)
 
@@ -119,7 +122,7 @@ FeaturePlot(c13, features=c("Ncf2", "Fgd3", "Fgd2","Rdx","Rcbtb1","Ctnnbip1","Il
 
 myFeatures<-c("Ncf2", "Fgd2", "Il10ra", "Pld4", "Ctsd", "Dock2", "Ccl3", "Itgb2")
 p <- lapply(myFeatures, function(x) {
-tmexp<-as.matrix(c13@assays$SCT@data[x,])  #@counts - unnormalised counts; @data normlised data (log or sct)
+tmexp<-as.matrix(c13@assays$RNA@data[x,])  #@counts - unnormalised counts; @data normlised data (log or sct)
 ggplot(c13@meta.data, aes(coord_x, coord_y))+geom_point(aes(color = tmexp[,1]), shape=".")+
     theme_void()+coord_fixed()+
     scale_colour_gradientn(colours = brewer.pal(n = 9, name = "YlGnBu"))+
@@ -136,6 +139,9 @@ ggsave(
 ## SCINA to identify microglia
 SeuObj<-readRDS("Integrated_SCT-RPCA.rds")
 DefaultAssay(SeuObj)<-"RNA"
+
+SeuObj%>% NormalizeData() --> SeuObj
+
 geneSets<-preprocess.signatures("Zeisel2015_markers.csv")
 exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj))
 
