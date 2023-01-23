@@ -140,8 +140,6 @@ ggsave(
 SeuObj<-readRDS("Integrated_SCT-RPCA.rds")
 DefaultAssay(SeuObj)<-"RNA"
 
-SeuObj%>% NormalizeData() --> SeuObj
-
 geneSets<-preprocess.signatures("Zeisel2015_markers.csv")
 exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj))
 

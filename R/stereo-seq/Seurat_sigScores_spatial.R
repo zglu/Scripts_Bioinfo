@@ -32,7 +32,8 @@ DefaultAssay(SeuObj)<- args[3]
 # works best with a large number of marker genes
 message("Cell assignment using AUCell:")
 geneSets<-preprocess.signatures(args[2])
-exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj)) # data always contains the log-normed version of counts
+# exprMatrix<-as.matrix(SeuObj@assays$RNA@counts) # for raw counts
+exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj)) # log-normed counts
 cells_rankings <- AUCell_buildRankings(exprMatrix, plotStats=TRUE)
 #save(cells_rankings, file="cells_rankings.RData")
 cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=nrow(cells_rankings)*0.05) # default top 5%
@@ -67,7 +68,7 @@ assignments <- assignmentTable %>% dplyr::group_by(cell) %>%
 # add to meta data, NA if no match
 SeuObj@meta.data$AUCellType<-assignments$AUCellType[match(rownames(SeuObj@meta.data),assignments$cell)]
 
-pdf(paste0(args[1], "_AUCell_thresholds_assignments_spatial.pdf"), width=15, height=9)
+pdf(paste0(args[1], "_AUCell_thresholds_assignments_spatial.pdf"), width=25, height=15)
 set.seed(333)
 par(mfrow=c(3,4))
 thresholds <- AUCell_exploreThresholds(cells_AUC, plotHist=TRUE)
@@ -99,7 +100,7 @@ message("Assignment using SCINA:")
 # SCINA use normalised counts
 DefaultAssay(SeuObj)<-args[3]
 geneSets<-preprocess.signatures(args[2])
-exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj)) # data always contains the log-normed version of counts
+exprMatrix <- as.matrix(Seurat::GetAssayData(SeuObj)) 
 
 SeuObj.scina = SCINA(exp = exprMatrix, signatures = geneSets, rm_overlap = FALSE, allow_unknown = TRUE) #max_iter = 100, convergence_n = 10, convergence_rate = 0.999, sensitivity_cutoff = 0.9
 SeuObj@meta.data$SCINA <- SeuObj.scina$cell_labels

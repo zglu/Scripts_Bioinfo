@@ -67,11 +67,11 @@ assignments <- assignmentTable %>% dplyr::group_by(cell) %>%
 # add to meta data, NA if no match
 SeuObj@meta.data$AUCellType<-assignments$AUCellType[match(rownames(SeuObj@meta.data),assignments$cell)]
 
-pdf(paste0(args[1], "_AUCell_thresholds_assignments.pdf"), width=15, height=9)
+pdf(paste0(args[1], "_AUCell_thresholds_assignments.pdf"), width=25, height=15)
 set.seed(333)
 par(mfrow=c(3,4))
 thresholds <- AUCell_exploreThresholds(cells_AUC, plotHist=TRUE)
-DimPlot(SeuObj, reduction="umap", fill=AUCellType)+ coord_fixed()
+DimPlot(SeuObj, reduction="umap", group.by='AUCellType')+ coord_fixed()
 dev.off()
 
 #### UCell ####
@@ -114,7 +114,7 @@ table(SeuObj@meta.data$SCINA)
 #SeuObj@meta.data$malig_states<-mela.scina$cell_labels[match(rownames(SeuObj@meta.data),rownames(mela@meta.data))]
 
 pdf(paste0(args[1], "_SCINA_cellTypes.pdf"), width=25, height=15)
-DimPlot(SeuObj, reduction="umap", fill=SCINA, col=myCol)+ coord_fixed()
+DimPlot(SeuObj, reduction="umap", group.by='SCINA', cols=myCol)+ coord_fixed()
 dev.off()
 
 ### export metadata
@@ -153,5 +153,5 @@ ggsave(
 
 ### combine output pdfs
 library(qpdf)
-qpdf::pdf_combine(input = c(paste0(args[1], "_SeuratScores.pdf"), paste0(args[1], "_UCellScores.pdf"), paste0(args[1], "_AUCellScores.pdf"),paste0(args[1], "_AUCell_thresholds_assignments.pdf"), paste0(args[1], "_SCINA_cellTypes.pdf")), output = paste0(args[1], "_sigScores_",args[3],".pdf"))
+qpdf::pdf_combine(input = c(paste0(args[1], "_SeuratScores.pdf"), paste0(args[1], "_UCellScores.pdf"), paste0(args[1], "_AUCellScores.pdf"),paste0(args[1], "_AUCell_thresholds_assignments.pdf"), paste0(args[1], "_SCINA_cellTypes.pdf")), output = paste0(args[1], "_sigScores_",args[3],"_umap.pdf"))
 
