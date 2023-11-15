@@ -1,6 +1,11 @@
-#Rscript clusters_plotly_cellbin.R [cellbin SCT RDS file]
+#Rscript clusters_plotly_bin.R [sct RDS file]
 
 args<-commandArgs(T)
+
+if (length(args)<3) {
+  cat("Usage: Rscript clusters_plotly.R [rds] [bin|cellbin]\n")
+  q()
+}
 
 library(ggsci)
 myCol<-unique(c(pal_d3("category10")(10),pal_rickandmorty("schwifty")(12), pal_lancet("lanonc")(9),
@@ -22,7 +27,12 @@ suppressMessages(library(plotly))
 f <- list(
   family = "Arial")
 
-p3<-ggplot(SeuObj@meta.data, aes(coord_x, coord_y))+geom_point(aes(color = seurat_clusters), shape=".")+theme_void()+coord_fixed()+scale_color_manual(values = myCol)
+if (args[2]=="bin") {
+  p3 <- ggplot(SeuObj@meta.data,aes(as.numeric(coord_x), as.numeric(coord_y), fill= seurat_clusters))+ 
+        geom_tile()+theme_void()+coord_fixed()+ scale_fill_manual(values = myCol)+labs(fill="Seurat clusters")
+} else {
+  p3<-ggplot(SeuObj@meta.data, aes(coord_x, coord_y))+geom_point(aes(color = seurat_clusters), shape=".")+theme_void()+coord_fixed()+scale_color_manual(values = myCol)
+}
 
 figplotly1<-ggplotly(p3) %>% layout(font=f)
 
